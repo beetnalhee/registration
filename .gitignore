@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# 환경 변수 — 절대 커밋 금지 (Supabase 키, Gmail 앱 비밀번호 포함)
+.env
+.env.local
+.env.*.local
+
+.vercel/
+.DS_Store
+*.log
