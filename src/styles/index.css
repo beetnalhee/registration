@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-midnight-900 text-slate-100 antialiased;
+    /* 밤하늘이 화면 아래까지 이어지도록 고정 배경으로 깐다 */
+    background-image: radial-gradient(120% 80% at 50% -10%, #1B2A5B 0%, #0B1026 45%, #070B1C 100%);
+    background-attachment: fixed;
+  }
+
+  /* 모바일에서 입력 시 화면이 확대되지 않도록 최소 16px 유지 */
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-moonlight/70 ring-offset-2 ring-offset-midnight-900;
+  }
+
+  ::selection {
+    @apply bg-moonlight/30 text-white;
+  }
+}
+
+@layer components {
+  /* 유리질감 카드 — 밤하늘 위에 얹히는 기본 컨테이너 */
+  .glass {
+    @apply rounded-3xl border border-white/10 bg-white/[0.06] shadow-card backdrop-blur-xl;
+  }
+
+  .glass-soft {
+    @apply rounded-2xl border border-white/[0.08] bg-white/[0.04];
+  }
+
+  /* 달빛 그라데이션 텍스트 */
+  .text-moon {
+    @apply bg-moon-gradient bg-clip-text text-transparent;
+  }
+
+  .label-text {
+    @apply mb-2 block text-[13px] font-medium tracking-wide text-slate-300;
+  }
+
+  .input-base {
+    @apply w-full rounded-2xl border border-white/12 bg-midnight-700/60 px-4 py-3.5
+           text-slate-50 placeholder:text-slate-500
+           transition-colors duration-150
+           focus:border-moonlight/60 focus:bg-midnight-700;
+  }
+
+  .input-error {
+    @apply border-peach-deep/70 bg-peach-deep/10;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/*
+ * 카드가 순차적으로 떠오르게 하는 지연 클래스.
+ * 클래스명을 템플릿 문자열로 조립하는 곳이 있어 Tailwind 의 사용처 탐지에 걸리지 않는다.
+ * 따라서 @layer 밖에 두어 항상 출력되게 한다.
+ */
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 180ms; }
+.stagger-4 { animation-delay: 240ms; }
