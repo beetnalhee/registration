@@ -1,0 +1,67 @@
+import { maskName } from '../../shared/format';
+import type {
+  AdminParticipantDto,
+  AssignmentResultDto,
+  LookupResultDto,
+} from '../../shared/types';
+import type { ParticipantRecord } from '../repositories/participantRepository';
+
+/**
+ * 참가자에게 내려보낼 형태로 변환한다.
+ *
+ * ★ 여기서 내부 운영 정보(is_bridge_zone, default_group_code, 나이, 정원)를
+ *   의도적으로 떨어뜨린다. 참가자용 응답은 반드시 이 함수를 거쳐야 한다.
+ */
+export const toAssignmentResultDto = (
+  participant: ParticipantRecord,
+  extra: { timeLabel: string | null; waitlistPosition: number | null },
+): AssignmentResultDto => {
+  if (participant.status === 'cancelled') {
+    throw new Error('취소된 신청은 배정 결과로 변환할 수 없습니다.');
+  }
+
+  return {
+    status: participant.status,
+    nickname: participant.nickname,
+    groupCode: participant.assignedGroupCode,
+    roundNo: participant.assignedRoundNo,
+    timeLabel: extra.timeLabel,
+    participantCode: participant.participantCode,
+    waitlistPosition: extra.waitlistPosition,
+  };
+};
+
+export const toLookupResultDto = (
+  participant: ParticipantRecord,
+  extra: { timeLabel: string | null; waitlistPosition: number | null },
+): LookupResultDto => ({
+  ...toAssignmentResultDto(participant, extra),
+  maskedName: maskName(participant.name),
+});
+
+/** 관리자용 — 내부 운영 정보를 포함한다. 관리자 인증을 통과한 요청에만 사용한다. */
+export const toAdminParticipantDto = (
+  participant: ParticipantRecord,
+  timeLabel: string | null,
+): AdminParticipantDto => ({
+  id: participant.id,
+  name: participant.name,
+  nickname: participant.nickname,
+  birthdate: participant.birthdate,
+  age: participant.ageAtEvent,
+  gender: participant.gender,
+  phone: participant.phone,
+  email: participant.email,
+  preferences: participant.preferences,
+  status: participant.status,
+  groupCode: participant.assignedGroupCode,
+  roundNo: participant.assignedRoundNo,
+  timeLabel,
+  participantCode: participant.participantCode,
+  defaultGroupCode: participant.defaultGroupCode,
+  isBridgeZone: participant.isBridgeZone,
+  isGroupOverridden:
+    participant.assignedGroupCode !== null &&
+    participant.assignedGroupCode !== participant.defaultGroupCode,
+  createdAt: participant.createdAt,
+});
