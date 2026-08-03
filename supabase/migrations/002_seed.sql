@@ -8,7 +8,7 @@
 
 insert into event_settings (id, event_name, event_date, is_open, near_full_threshold,
                             min_age, max_age, bridge_min_age, bridge_max_age)
-values (true, '한여름 밤의 꿈', date '2026-08-15', true, 0.800, 18, 35, 24, 27)
+values (true, '사랑은 돌아오는거야', date '2026-08-15', true, 0.800, 18, 35, 24, 27)
 on conflict (id) do nothing;
 
 -- 그룹: 연령대를 추측할 수 없는 중립적 이름 (참가번호에 그대로 노출된다)

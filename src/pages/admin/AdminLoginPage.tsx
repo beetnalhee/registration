@@ -33,7 +33,7 @@ export const AdminLoginPage = () => {
   return (
     <PageShell bare>
       <div className="pt-16">
-        <SectionTitle eyebrow="staff only" title="운영진 로그인" />
+        <SectionTitle plain eyebrow="Admin Page" title="관리자 로그인" />
 
         {error && <ErrorBanner message={error} />}
 

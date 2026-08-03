@@ -35,7 +35,7 @@ export const LandingPage = () => {
         </p>
 
         <h1 className="mt-5 animate-fade-up stagger-1 font-display text-[40px] font-extrabold leading-[1.15] tracking-tight">
-          <span className="text-moon">한여름 밤의 꿈</span>
+          <span className="text-moon">사랑은 돌아오는거야</span>
         </h1>
 
         <p className="mx-auto mt-5 max-w-[19rem] animate-fade-up stagger-2 text-[15px] leading-relaxed text-slate-300">
@@ -93,11 +93,8 @@ export const LandingPage = () => {
         </ul>
       </section>
 
-      <footer className="mt-10 pb-8 text-center">
-        <Link to="/admin/login" className="text-[12px] text-slate-600 transition-colors hover:text-slate-400">
-          운영진 로그인
-        </Link>
-      </footer>
+      {/* 관리자 로그인 링크는 노출하지 않는다. /admin/login 주소로 직접 접근한다. */}
+      <div className="pb-10" />
     </PageShell>
   );
 };

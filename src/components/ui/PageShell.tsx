@@ -28,7 +28,7 @@ export const PageShell = ({ children, bare = false, maxWidth = 'sm' }: PageShell
             className="flex items-center gap-2 text-[13px] tracking-wide text-slate-400 transition-colors hover:text-moonlight-soft"
           >
             <span aria-hidden>🌙</span>
-            한여름 밤의 꿈
+            사랑은 돌아오는거야
           </Link>
           <Link
             to="/lookup"
@@ -48,10 +48,13 @@ export const SectionTitle = ({
   eyebrow,
   title,
   description,
+  /** 명조체 대신 본문 서체(Pretendard)로 쓴다. 운영 화면처럼 감성보다 명료함이 중요한 곳용. */
+  plain = false,
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
+  plain?: boolean;
 }) => (
   <div className="mb-6 animate-fade-up">
     {eyebrow && (
@@ -59,7 +62,12 @@ export const SectionTitle = ({
         {eyebrow}
       </p>
     )}
-    <h1 className="font-display text-[26px] font-bold leading-tight tracking-tight text-slate-50">
+    <h1
+      className={[
+        'text-[26px] font-bold leading-tight text-slate-50',
+        plain ? 'tracking-[-0.015em]' : 'font-display tracking-tight',
+      ].join(' ')}
+    >
       {title}
     </h1>
     {description && <p className="mt-2.5 text-[14.5px] leading-relaxed text-slate-400">{description}</p>}

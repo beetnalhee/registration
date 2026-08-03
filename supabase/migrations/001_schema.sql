@@ -1,5 +1,5 @@
 -- ============================================================================
--- 한여름 밤의 꿈 · 3분 데이트 신청 시스템 — 스키마
+-- 사랑은 돌아오는거야 · 3분 데이트 신청 시스템 — 스키마
 --
 -- 정원 모델
 --   하드 정원 : (회차, 성별) = 20명  → round_capacity.  총 3회차 × 2성별 × 20 = 120명
@@ -30,7 +30,7 @@ $$;
 -- ── 행사 설정 (단일 행) ─────────────────────────────────────────────────────
 create table event_settings (
   id                  boolean       primary key default true check (id),
-  event_name          text          not null default '한여름 밤의 꿈',
+  event_name          text          not null default '사랑은 돌아오는거야',
   -- 만나이 계산 기준일. 행사 당일로 설정한다.
   event_date          date          not null,
   -- false 이면 신청 접수를 전면 중단한다.
