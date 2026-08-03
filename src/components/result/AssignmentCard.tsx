@@ -74,9 +74,9 @@ export const AssignmentCard = ({ result }: { result: AssignmentResultDto }) => {
       </div>
 
       <p className="border-t border-white/[0.07] px-6 py-4 text-center text-[12.5px] leading-relaxed text-slate-500">
-        시작 10분 전까지 도착해 주세요.
+        시간 맞춰 입장해주세요, 늦으면 입장이 제한될 수 있어요.
         <br />
-        참가번호로 자리를 안내드립니다.
+
       </p>
     </div>
   );

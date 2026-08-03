@@ -102,7 +102,7 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
       ${infoRow('참가번호', data.participantCode, true)}
     </table>
     <p style="margin:24px 0 0;font-size:13px;color:#8FA0D0;">
-      시작 10분 전까지 도착해 주세요. 참가번호로 자리를 안내드립니다.
+      시간 맞춰 입장해주세요, 늦으면 입장이 제한될 수 있어요.<br />
     </p>
     ${button(data.lookupUrl, '내 배정 다시 보기')}`;
 
