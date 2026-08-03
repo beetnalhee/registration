@@ -19,9 +19,9 @@ on conflict (code) do nothing;
 
 -- 회차
 insert into rounds (round_no, starts_at, ends_at) values
-  (1, time '09:50', time '10:10'),
-  (2, time '10:15', time '10:35'),
-  (3, time '10:40', time '11:00')
+  (1, time '09:40', time '10:00'),
+  (2, time '10:05', time '10:25'),
+  (3, time '10:30', time '10:50')
 on conflict (round_no) do nothing;
 
 -- 하드 정원: 회차별 남 20 / 여 20  → 총 120명
