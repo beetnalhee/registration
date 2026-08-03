@@ -1,13 +1,13 @@
-import type { LookupInput } from '../../shared/schemas';
-import type { LookupResultDto } from '../../shared/types';
-import { getPool } from '../db/pool';
-import { notFound } from '../errors';
+import type { LookupInput } from '../../shared/schemas.js';
+import type { LookupResultDto } from '../../shared/types.js';
+import { getPool } from '../db/pool.js';
+import { notFound } from '../errors.js';
 import {
   findParticipantByLookupKey,
   findWaitlistPosition,
-} from '../repositories/participantRepository';
-import { findActiveRounds } from '../repositories/roundRepository';
-import { toLookupResultDto } from './dto';
+} from '../repositories/participantRepository.js';
+import { findActiveRounds } from '../repositories/roundRepository.js';
+import { toLookupResultDto } from './dto.js';
 
 /**
  * 본인 조회. 키는 생년월일 + 전화번호 뒤 4자리.

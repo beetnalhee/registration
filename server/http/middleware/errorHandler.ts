@@ -1,7 +1,7 @@
 import type { ErrorRequestHandler, RequestHandler } from 'express';
 import { ZodError } from 'zod';
-import { AppError } from '../../errors';
-import { fail } from '../respond';
+import { AppError } from '../../errors.js';
+import { fail } from '../respond.js';
 
 /** zod 검증 실패를 필드별 메시지로 변환한다. */
 const toFieldErrors = (error: ZodError): Record<string, string> => {

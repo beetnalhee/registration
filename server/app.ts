@@ -1,11 +1,11 @@
 import express, { type Express } from 'express';
-import { asyncHandler } from './http/asyncHandler';
-import { errorHandler, notFoundHandler } from './http/middleware/errorHandler';
-import { securityHeaders } from './http/middleware/securityHeaders';
-import { ok } from './http/respond';
-import { adminRoutes } from './routes/adminRoutes';
-import { publicRoutes } from './routes/publicRoutes';
-import { getPool } from './db/pool';
+import { asyncHandler } from './http/asyncHandler.js';
+import { errorHandler, notFoundHandler } from './http/middleware/errorHandler.js';
+import { securityHeaders } from './http/middleware/securityHeaders.js';
+import { ok } from './http/respond.js';
+import { adminRoutes } from './routes/adminRoutes.js';
+import { publicRoutes } from './routes/publicRoutes.js';
+import { getPool } from './db/pool.js';
 
 export const createApp = (): Express => {
   const app = express();

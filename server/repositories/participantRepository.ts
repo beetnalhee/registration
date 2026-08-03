@@ -1,5 +1,5 @@
-import type { Gender, GroupCode, ParticipantStatus } from '../../shared/types';
-import type { Queryable } from '../db/pool';
+import type { Gender, GroupCode, ParticipantStatus } from '../../shared/types.js';
+import type { Queryable } from '../db/pool.js';
 
 export interface ParticipantRecord {
   id: string;

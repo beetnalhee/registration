@@ -1,4 +1,4 @@
-import { resolveCounterpartGroup, resolveDefaultGroup, isBridgeZone } from './group';
+import { resolveCounterpartGroup, resolveDefaultGroup, isBridgeZone } from './group.js';
 import type {
   AssignmentContext,
   AssignmentDecision,
@@ -8,7 +8,7 @@ import type {
   GroupCode,
   GroupTallyState,
   RoundCapacityState,
-} from './types';
+} from './types.js';
 
 /**
  * 기본값 해설

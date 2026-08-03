@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateAge, resolveAgeEligibility } from '../../server/domain/age';
+import { calculateAge, resolveAgeEligibility } from '../../server/domain/age.js';
 
 describe('calculateAge (만나이)', () => {
   it('생일이 지났으면 나이가 올라간다', () => {

@@ -1,24 +1,24 @@
 import { z } from 'zod';
-import { formatPhone } from '../../../shared/format';
-import type { adminParticipantQuerySchema } from '../../../shared/schemas';
+import { formatPhone } from '../../../shared/format.js';
+import type { adminParticipantQuerySchema } from '../../../shared/schemas.js';
 import {
   GENDER_LABELS,
   PARTICIPANT_STATUS_LABELS,
-} from '../../../shared/constants';
+} from '../../../shared/constants.js';
 import type {
   AdminParticipantDetailDto,
   AdminParticipantListDto,
-} from '../../../shared/types';
-import type { Queryable } from '../../db/pool';
-import { notFound } from '../../errors';
-import { findEmailLogs } from '../../repositories/emailLogRepository';
+} from '../../../shared/types.js';
+import type { Queryable } from '../../db/pool.js';
+import { notFound } from '../../errors.js';
+import { findEmailLogs } from '../../repositories/emailLogRepository.js';
 import {
   findParticipantById,
   searchParticipants,
   type ParticipantRecord,
-} from '../../repositories/participantRepository';
-import { findAllRounds, type RoundRecord } from '../../repositories/roundRepository';
-import { toAdminParticipantDto } from '../dto';
+} from '../../repositories/participantRepository.js';
+import { findAllRounds, type RoundRecord } from '../../repositories/roundRepository.js';
+import { toAdminParticipantDto } from '../dto.js';
 
 export type ParticipantQuery = z.infer<typeof adminParticipantQuerySchema>;
 

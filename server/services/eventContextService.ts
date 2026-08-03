@@ -1,10 +1,10 @@
-import type { Queryable } from '../db/pool';
-import { BALANCE_POLICY } from '../config/policy';
-import type { AssignmentContext, GroupRule } from '../domain/types';
-import { findGroups, findEventSettings, type EventSettings } from '../repositories/settingsRepository';
-import { findActiveRounds, type RoundRecord } from '../repositories/roundRepository';
-import { findCapacityStates, findGroupTallyStates } from '../repositories/slotRepository';
-import { badRequest } from '../errors';
+import type { Queryable } from '../db/pool.js';
+import { BALANCE_POLICY } from '../config/policy.js';
+import type { AssignmentContext, GroupRule } from '../domain/types.js';
+import { findGroups, findEventSettings, type EventSettings } from '../repositories/settingsRepository.js';
+import { findActiveRounds, type RoundRecord } from '../repositories/roundRepository.js';
+import { findCapacityStates, findGroupTallyStates } from '../repositories/slotRepository.js';
+import { badRequest } from '../errors.js';
 
 export interface EventContext {
   settings: EventSettings;

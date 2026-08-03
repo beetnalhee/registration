@@ -4,9 +4,9 @@
  * Vercel 배포 시에는 api/index.ts 가 진입점이므로 이 파일은 사용되지 않는다.
  */
 import 'dotenv/config';
-import { createApp } from './app';
-import { loadEnv } from './config/env';
-import { closePool } from './db/pool';
+import { createApp } from './app.js';
+import { loadEnv } from './config/env.js';
+import { closePool } from './db/pool.js';
 
 const env = loadEnv();
 const app = createApp();

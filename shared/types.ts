@@ -3,7 +3,7 @@ import type {
   GROUP_CODES,
   PARTICIPANT_STATUSES,
   ROUND_AVAILABILITIES,
-} from './constants';
+} from './constants.js';
 
 export type Gender = (typeof GENDERS)[number];
 export type GroupCode = (typeof GROUP_CODES)[number];

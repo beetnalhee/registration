@@ -1,4 +1,4 @@
-import type { Gender, GroupCode, RoundAvailability } from '../../shared/types';
+import type { Gender, GroupCode, RoundAvailability } from '../../shared/types.js';
 
 /** 그룹의 기본 연령 구간. DB(groups 표)에서 읽어온다. */
 export interface GroupRule {

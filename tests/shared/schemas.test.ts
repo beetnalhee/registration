@@ -4,7 +4,7 @@ import {
   lookupSchema,
   normalizePhone,
   adminReassignSchema,
-} from '../../shared/schemas';
+} from '../../shared/schemas.js';
 
 const validApplication = {
   name: '김희주',

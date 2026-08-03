@@ -1,4 +1,4 @@
-import type { MailMessage } from './mailer';
+import type { MailMessage } from './mailer.js';
 
 export interface AssignmentMailData {
   eventName: string;

@@ -1,7 +1,7 @@
 import type { Request, RequestHandler, Response } from 'express';
-import { unauthorized } from '../../errors';
-import type { AdminRecord } from '../../repositories/adminRepository';
-import { authenticateAdmin } from '../../services/authService';
+import { unauthorized } from '../../errors.js';
+import type { AdminRecord } from '../../repositories/adminRepository.js';
+import { authenticateAdmin } from '../../services/authService.js';
 
 const ADMIN_LOCALS_KEY = 'admin';
 

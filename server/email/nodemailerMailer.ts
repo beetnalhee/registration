@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
-import { isEmailConfigured, loadEnv, type Env } from '../config/env';
-import { ConsoleMailer, type Mailer, type MailMessage } from './mailer';
+import { isEmailConfigured, loadEnv, type Env } from '../config/env.js';
+import { ConsoleMailer, type Mailer, type MailMessage } from './mailer.js';
 
 /** Gmail SMTP 발송. 앱 비밀번호(16자리)가 필요하다. */
 export class NodemailerMailer implements Mailer {

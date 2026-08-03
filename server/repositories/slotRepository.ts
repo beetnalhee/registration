@@ -1,7 +1,7 @@
-import type { Gender, GroupCode } from '../../shared/types';
-import type { Queryable } from '../db/pool';
-import type { GroupTallyState, RoundCapacityState } from '../domain/types';
-import { conflict } from '../errors';
+import type { Gender, GroupCode } from '../../shared/types.js';
+import type { Queryable } from '../db/pool.js';
+import type { GroupTallyState, RoundCapacityState } from '../domain/types.js';
+import { conflict } from '../errors.js';
 
 interface CapacityRow {
   round_no: number;

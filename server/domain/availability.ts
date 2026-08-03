@@ -1,4 +1,4 @@
-import type { AvailabilityInput, RoundAvailability } from './types';
+import type { AvailabilityInput, RoundAvailability } from './types.js';
 
 /**
  * 회차 상태를 계산한다.

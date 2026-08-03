@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import type { ApiFailure, ApiSuccess } from '../../shared/types';
+import type { ApiFailure, ApiSuccess } from '../../shared/types.js';
 
 export const ok = <T>(res: Response, data: T, status = 200): void => {
   const body: ApiSuccess<T> = { success: true, data, error: null };

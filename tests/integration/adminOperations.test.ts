@@ -17,12 +17,12 @@ const ADMIN_EMAIL = 'admin@example.com';
 describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
   let pool: pg.Pool;
   let services: {
-    submitApplication: typeof import('../../server/services/applicationService').submitApplication;
-    lookupAssignment: typeof import('../../server/services/lookupService').lookupAssignment;
-    mutations: typeof import('../../server/services/admin/participantMutationService');
-    overview: typeof import('../../server/services/admin/overviewService');
-    queries: typeof import('../../server/services/admin/participantQueryService');
-    availability: typeof import('../../server/services/availabilityService');
+    submitApplication: typeof import('../../server/services/applicationService.js').submitApplication;
+    lookupAssignment: typeof import('../../server/services/lookupService.js').lookupAssignment;
+    mutations: typeof import('../../server/services/admin/participantMutationService.js');
+    overview: typeof import('../../server/services/admin/overviewService.js');
+    queries: typeof import('../../server/services/admin/participantQueryService.js');
+    availability: typeof import('../../server/services/availabilityService.js');
   };
 
   beforeAll(async () => {
@@ -41,18 +41,18 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     await pool.query(readSql('002_seed.sql'));
 
     services = {
-      submitApplication: (await import('../../server/services/applicationService'))
+      submitApplication: (await import('../../server/services/applicationService.js'))
         .submitApplication,
-      lookupAssignment: (await import('../../server/services/lookupService')).lookupAssignment,
-      mutations: await import('../../server/services/admin/participantMutationService'),
-      overview: await import('../../server/services/admin/overviewService'),
-      queries: await import('../../server/services/admin/participantQueryService'),
-      availability: await import('../../server/services/availabilityService'),
+      lookupAssignment: (await import('../../server/services/lookupService.js')).lookupAssignment,
+      mutations: await import('../../server/services/admin/participantMutationService.js'),
+      overview: await import('../../server/services/admin/overviewService.js'),
+      queries: await import('../../server/services/admin/participantQueryService.js'),
+      availability: await import('../../server/services/availabilityService.js'),
     };
   }, 60_000);
 
   afterAll(async () => {
-    const { closePool } = await import('../../server/db/pool');
+    const { closePool } = await import('../../server/db/pool.js');
     await closePool();
     await pool?.end();
   });

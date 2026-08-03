@@ -1,4 +1,4 @@
-import type { AgePolicy } from './types';
+import type { AgePolicy } from './types.js';
 
 interface DateParts {
   year: number;

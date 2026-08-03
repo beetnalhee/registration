@@ -1,9 +1,9 @@
-import type { EventInfoDto, Gender, RoundAvailabilityDto } from '../../shared/types';
-import type { Queryable } from '../db/pool';
-import { combineAvailability, resolveAvailability } from '../domain/availability';
-import { findCapacityStates } from '../repositories/slotRepository';
-import { findEventSettings } from '../repositories/settingsRepository';
-import { findActiveRounds } from '../repositories/roundRepository';
+import type { EventInfoDto, Gender, RoundAvailabilityDto } from '../../shared/types.js';
+import type { Queryable } from '../db/pool.js';
+import { combineAvailability, resolveAvailability } from '../domain/availability.js';
+import { findCapacityStates } from '../repositories/slotRepository.js';
+import { findEventSettings } from '../repositories/settingsRepository.js';
+import { findActiveRounds } from '../repositories/roundRepository.js';
 
 /** 참가자 화면에 필요한 행사 기본 정보. 인원수는 포함하지 않는다. */
 export const getEventInfo = async (client: Queryable): Promise<EventInfoDto> => {

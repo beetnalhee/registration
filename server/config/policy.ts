@@ -1,5 +1,5 @@
-import { DEFAULT_BALANCE_POLICY } from '../domain/assignment';
-import type { BalancePolicy } from '../domain/types';
+import { DEFAULT_BALANCE_POLICY } from '../domain/assignment.js';
+import type { BalancePolicy } from '../domain/types.js';
 
 /**
  * 배정 트랜잭션을 직렬화하는 advisory lock 키.

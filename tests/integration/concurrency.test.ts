@@ -21,7 +21,7 @@ const readSql = (name: string): string =>
 
 describe.skipIf(!TEST_DATABASE_URL)('동시 신청 처리', () => {
   let pool: pg.Pool;
-  let submitApplication: typeof import('../../server/services/applicationService').submitApplication;
+  let submitApplication: typeof import('../../server/services/applicationService.js').submitApplication;
 
   beforeAll(async () => {
     // 서버 모듈이 loadEnv() 로 검증하는 값들을 테스트용으로 채운다.
@@ -40,11 +40,11 @@ describe.skipIf(!TEST_DATABASE_URL)('동시 신청 처리', () => {
     await pool.query(readSql('001_schema.sql'));
     await pool.query(readSql('002_seed.sql'));
 
-    ({ submitApplication } = await import('../../server/services/applicationService'));
+    ({ submitApplication } = await import('../../server/services/applicationService.js'));
   }, 60_000);
 
   afterAll(async () => {
-    const { closePool } = await import('../../server/db/pool');
+    const { closePool } = await import('../../server/db/pool.js');
     await closePool();
     await pool?.end();
   });
@@ -157,7 +157,7 @@ describe.skipIf(!TEST_DATABASE_URL)('동시 신청 처리', () => {
     const participantId = rows[0]?.id as string;
 
     const { cancelParticipant } = await import(
-      '../../server/services/admin/participantMutationService'
+      '../../server/services/admin/participantMutationService.js'
     );
     await cancelParticipant({ adminEmail: 'test@example.com', participantId });
 

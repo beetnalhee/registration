@@ -1,9 +1,9 @@
 import type { z } from 'zod';
-import type { adminSettingsSchema } from '../../../shared/schemas';
-import type { AdminSettingsDto } from '../../../shared/types';
-import { withTransaction } from '../../db/pool';
-import { recordAudit } from '../../repositories/auditLogRepository';
-import { findEventSettings, updateEventSettings } from '../../repositories/settingsRepository';
+import type { adminSettingsSchema } from '../../../shared/schemas.js';
+import type { AdminSettingsDto } from '../../../shared/types.js';
+import { withTransaction } from '../../db/pool.js';
+import { recordAudit } from '../../repositories/auditLogRepository.js';
+import { findEventSettings, updateEventSettings } from '../../repositories/settingsRepository.js';
 
 export type SettingsPatch = z.infer<typeof adminSettingsSchema>;
 

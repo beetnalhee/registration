@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GENDERS, GROUP_CODES, PREFERENCE_COUNT } from './constants';
+import { GENDERS, GROUP_CODES, PREFERENCE_COUNT } from './constants.js';
 
 /** 하이픈·공백·괄호를 제거하고 숫자만 남긴다. */
 export const normalizePhone = (raw: string): string => raw.replace(/\D/g, '');

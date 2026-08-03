@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatParticipantCode } from '../../server/domain/participantCode';
+import { formatParticipantCode } from '../../server/domain/participantCode.js';
 
 describe('formatParticipantCode', () => {
   it('그룹-회차-성별-순번 형식으로 만든다', () => {

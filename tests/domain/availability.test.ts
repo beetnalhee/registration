@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { combineAvailability, resolveAvailability } from '../../server/domain/availability';
+import { combineAvailability, resolveAvailability } from '../../server/domain/availability.js';
 
 const threshold = 0.8;
 

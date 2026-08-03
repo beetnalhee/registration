@@ -1,5 +1,5 @@
-import type { EmailLogDto } from '../../shared/types';
-import type { Queryable } from '../db/pool';
+import type { EmailLogDto } from '../../shared/types.js';
+import type { Queryable } from '../db/pool.js';
 
 export type EmailKind = 'assignment' | 'waitlist' | 'promotion' | 'cancellation';
 

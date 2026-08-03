@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BALANCE_POLICY, decideAssignment } from '../../server/domain/assignment';
+import { DEFAULT_BALANCE_POLICY, decideAssignment } from '../../server/domain/assignment.js';
 import type {
   AgePolicy,
   AssignmentContext,
   AssignmentRequest,
   Gender,
   GroupRule,
-} from '../../server/domain/types';
+} from '../../server/domain/types.js';
 
 /**
  * 배정 알고리즘 시뮬레이션.

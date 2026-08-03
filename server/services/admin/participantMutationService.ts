@@ -1,31 +1,31 @@
-import type { GroupCode } from '../../../shared/types';
-import { getPool, withTransaction } from '../../db/pool';
-import { lockAssignment } from '../../db/lock';
-import { chooseGroup } from '../../domain/assignment';
-import { isBridgeZone } from '../../domain/group';
-import { formatParticipantCode } from '../../domain/participantCode';
-import { getMailer } from '../../email/nodemailerMailer';
-import { notifyParticipant } from '../../email/notificationService';
-import { badRequest, conflict, notFound } from '../../errors';
-import { recordAudit } from '../../repositories/auditLogRepository';
+import type { GroupCode } from '../../../shared/types.js';
+import { getPool, withTransaction } from '../../db/pool.js';
+import { lockAssignment } from '../../db/lock.js';
+import { chooseGroup } from '../../domain/assignment.js';
+import { isBridgeZone } from '../../domain/group.js';
+import { formatParticipantCode } from '../../domain/participantCode.js';
+import { getMailer } from '../../email/nodemailerMailer.js';
+import { notifyParticipant } from '../../email/notificationService.js';
+import { badRequest, conflict, notFound } from '../../errors.js';
+import { recordAudit } from '../../repositories/auditLogRepository.js';
 import {
   applyAssignment,
   findParticipantById,
   findWaitlistPosition,
   markCancelled,
   type ParticipantRecord,
-} from '../../repositories/participantRepository';
+} from '../../repositories/participantRepository.js';
 import {
   claimSequence,
   releaseGroupCount,
   releaseSeat,
   reserveSeat,
-} from '../../repositories/slotRepository';
-import type { RoundRecord } from '../../repositories/roundRepository';
-import { toAdminParticipantDto } from '../dto';
-import { findRoundByNo, loadAssignmentContext, loadEventContext } from '../eventContextService';
-import type { AdminParticipantDto } from '../../../shared/types';
-import type { Queryable } from '../../db/pool';
+} from '../../repositories/slotRepository.js';
+import type { RoundRecord } from '../../repositories/roundRepository.js';
+import { toAdminParticipantDto } from '../dto.js';
+import { findRoundByNo, loadAssignmentContext, loadEventContext } from '../eventContextService.js';
+import type { AdminParticipantDto } from '../../../shared/types.js';
+import type { Queryable } from '../../db/pool.js';
 
 interface MutationContext {
   adminEmail: string;

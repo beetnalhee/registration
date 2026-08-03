@@ -2,8 +2,12 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    // package.json 이 "type": "module" 이므로 출력은 ESM 이고,
+    // Node ESM 은 relative import 에 확장자를 요구한다.
+    // NodeNext 로 두면 확장자를 빠뜨렸을 때 tsc 가 즉시 잡아준다.
+    // (Bundler 로 두면 로컬에선 통과하고 Vercel 배포에서만 죽는다)
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": ["node"],
 
     "strict": true,

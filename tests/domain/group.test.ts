@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { isBridgeZone, resolveDefaultGroup } from '../../server/domain/group';
-import type { AgePolicy, GroupRule } from '../../server/domain/types';
+import { isBridgeZone, resolveDefaultGroup } from '../../server/domain/group.js';
+import type { AgePolicy, GroupRule } from '../../server/domain/types.js';
 
 const GROUPS: GroupRule[] = [
   { code: 'SUMMER', minAge: 18, maxAge: 25, sortOrder: 1 },

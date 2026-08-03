@@ -1,14 +1,14 @@
-import { loadEnv } from '../config/env';
-import type { Queryable } from '../db/pool';
-import type { ParticipantRecord } from '../repositories/participantRepository';
-import { recordEmailAttempt, type EmailKind } from '../repositories/emailLogRepository';
-import type { Mailer, MailMessage } from './mailer';
+import { loadEnv } from '../config/env.js';
+import type { Queryable } from '../db/pool.js';
+import type { ParticipantRecord } from '../repositories/participantRepository.js';
+import { recordEmailAttempt, type EmailKind } from '../repositories/emailLogRepository.js';
+import type { Mailer, MailMessage } from './mailer.js';
 import {
   buildAssignmentMail,
   buildCancellationMail,
   buildPromotionMail,
   buildWaitlistMail,
-} from './templates';
+} from './templates.js';
 
 export interface NotifyParams {
   participant: ParticipantRecord;

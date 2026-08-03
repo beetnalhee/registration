@@ -1,4 +1,4 @@
-import type { Queryable } from '../db/pool';
+import type { Queryable } from '../db/pool.js';
 
 export interface AdminRecord {
   userId: string;

@@ -1,7 +1,7 @@
-import type { GroupCode } from '../../shared/types';
-import type { Queryable } from '../db/pool';
-import type { AgePolicy, GroupRule } from '../domain/types';
-import { internal } from '../errors';
+import type { GroupCode } from '../../shared/types.js';
+import type { Queryable } from '../db/pool.js';
+import type { AgePolicy, GroupRule } from '../domain/types.js';
+import { internal } from '../errors.js';
 
 export interface EventSettings extends AgePolicy {
   eventName: string;

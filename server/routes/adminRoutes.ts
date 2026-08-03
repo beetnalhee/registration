@@ -6,26 +6,26 @@ import {
   adminPromoteSchema,
   adminReassignSchema,
   adminSettingsSchema,
-} from '../../shared/schemas';
-import { getPool } from '../db/pool';
-import { asyncHandler } from '../http/asyncHandler';
-import { adminLoginLimiter } from '../http/middleware/rateLimiters';
-import { getAdmin, requireAdmin } from '../http/middleware/requireAdmin';
-import { ok } from '../http/respond';
-import { loginAdmin } from '../services/authService';
-import { getAdminOverview } from '../services/admin/overviewService';
+} from '../../shared/schemas.js';
+import { getPool } from '../db/pool.js';
+import { asyncHandler } from '../http/asyncHandler.js';
+import { adminLoginLimiter } from '../http/middleware/rateLimiters.js';
+import { getAdmin, requireAdmin } from '../http/middleware/requireAdmin.js';
+import { ok } from '../http/respond.js';
+import { loginAdmin } from '../services/authService.js';
+import { getAdminOverview } from '../services/admin/overviewService.js';
 import {
   buildParticipantsCsv,
   getParticipantDetail,
   listParticipants,
-} from '../services/admin/participantQueryService';
+} from '../services/admin/participantQueryService.js';
 import {
   cancelParticipant,
   promoteParticipant,
   reassignParticipant,
   resendParticipantEmail,
-} from '../services/admin/participantMutationService';
-import { updateSettings } from '../services/admin/settingsAdminService';
+} from '../services/admin/participantMutationService.js';
+import { updateSettings } from '../services/admin/settingsAdminService.js';
 
 const participantIdSchema = z.object({ id: z.string().uuid('참가자 ID 형식이 올바르지 않습니다.') });
 

@@ -1,10 +1,10 @@
-import { maskName } from '../../shared/format';
+import { maskName } from '../../shared/format.js';
 import type {
   AdminParticipantDto,
   AssignmentResultDto,
   LookupResultDto,
-} from '../../shared/types';
-import type { ParticipantRecord } from '../repositories/participantRepository';
+} from '../../shared/types.js';
+import type { ParticipantRecord } from '../repositories/participantRepository.js';
 
 /**
  * 참가자에게 내려보낼 형태로 변환한다.

@@ -1,5 +1,5 @@
-import { ASSIGNMENT_LOCK_KEY } from '../config/policy';
-import type { Queryable } from './pool';
+import { ASSIGNMENT_LOCK_KEY } from '../config/policy.js';
+import type { Queryable } from './pool.js';
 
 /**
  * 배정 임계 구역에 진입한다. 반드시 트랜잭션 안에서 호출해야 한다.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPhone, formatRoundLabel, formatTimeRange, maskName } from '../../shared/format';
+import { formatPhone, formatRoundLabel, formatTimeRange, maskName } from '../../shared/format.js';
 
 describe('formatTimeRange', () => {
   it('시작~종료 형식으로 만든다', () => {

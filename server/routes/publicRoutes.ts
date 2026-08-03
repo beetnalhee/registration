@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { applicationSchema, lookupSchema, roundAvailabilityQuerySchema } from '../../shared/schemas';
-import { getPool } from '../db/pool';
-import { asyncHandler } from '../http/asyncHandler';
-import { applicationLimiter, lookupLimiter } from '../http/middleware/rateLimiters';
-import { ok } from '../http/respond';
-import { submitApplication } from '../services/applicationService';
-import { getEventInfo, getRoundAvailabilities } from '../services/availabilityService';
-import { lookupAssignment } from '../services/lookupService';
+import { applicationSchema, lookupSchema, roundAvailabilityQuerySchema } from '../../shared/schemas.js';
+import { getPool } from '../db/pool.js';
+import { asyncHandler } from '../http/asyncHandler.js';
+import { applicationLimiter, lookupLimiter } from '../http/middleware/rateLimiters.js';
+import { ok } from '../http/respond.js';
+import { submitApplication } from '../services/applicationService.js';
+import { getEventInfo, getRoundAvailabilities } from '../services/availabilityService.js';
+import { lookupAssignment } from '../services/lookupService.js';
 
 /**
  * 참가자용 공개 API.

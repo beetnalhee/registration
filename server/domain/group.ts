@@ -1,4 +1,4 @@
-import type { AgePolicy, GroupCode, GroupRule } from './types';
+import type { AgePolicy, GroupCode, GroupRule } from './types.js';
 
 /**
  * 나이에 해당하는 기본 그룹을 찾는다.

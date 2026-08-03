@@ -1,13 +1,13 @@
-import { GROUP_CODES } from '../../../shared/constants';
-import type { AdminOverviewDto, GenderCountDto, SlotCountDto } from '../../../shared/types';
-import type { Queryable } from '../../db/pool';
-import { combineAvailability, resolveAvailability } from '../../domain/availability';
-import { countAssignedByGroup, countByStatus } from '../../repositories/participantRepository';
-import { findActiveRounds } from '../../repositories/roundRepository';
-import { findEventSettings } from '../../repositories/settingsRepository';
-import { findCapacityStates } from '../../repositories/slotRepository';
-import type { RoundCapacityState } from '../../domain/types';
-import type { Gender } from '../../../shared/types';
+import { GROUP_CODES } from '../../../shared/constants.js';
+import type { AdminOverviewDto, GenderCountDto, SlotCountDto } from '../../../shared/types.js';
+import type { Queryable } from '../../db/pool.js';
+import { combineAvailability, resolveAvailability } from '../../domain/availability.js';
+import { countAssignedByGroup, countByStatus } from '../../repositories/participantRepository.js';
+import { findActiveRounds } from '../../repositories/roundRepository.js';
+import { findEventSettings } from '../../repositories/settingsRepository.js';
+import { findCapacityStates } from '../../repositories/slotRepository.js';
+import type { RoundCapacityState } from '../../domain/types.js';
+import type { Gender } from '../../../shared/types.js';
 
 const EMPTY_COUNT: GenderCountDto = { filled: 0, capacity: 0 };
 

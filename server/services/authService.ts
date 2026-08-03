@@ -1,9 +1,9 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { AdminSessionDto } from '../../shared/types';
-import { loadEnv } from '../config/env';
-import { getPool } from '../db/pool';
-import { forbidden, unauthorized } from '../errors';
-import { findAdminByUserId, type AdminRecord } from '../repositories/adminRepository';
+import type { AdminSessionDto } from '../../shared/types.js';
+import { loadEnv } from '../config/env.js';
+import { getPool } from '../db/pool.js';
+import { forbidden, unauthorized } from '../errors.js';
+import { findAdminByUserId, type AdminRecord } from '../repositories/adminRepository.js';
 
 let client: SupabaseClient | null = null;
 

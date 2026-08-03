@@ -1,5 +1,5 @@
-import { SEQUENCE_PAD_LENGTH } from '../../shared/constants';
-import type { Gender, GroupCode } from './types';
+import { SEQUENCE_PAD_LENGTH } from '../../shared/constants.js';
+import type { Gender, GroupCode } from './types.js';
 
 export interface ParticipantCodeParts {
   groupCode: GroupCode;

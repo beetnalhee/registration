@@ -1,6 +1,6 @@
 import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
-import { RATE_LIMITS } from '../../config/policy';
-import { fail } from '../respond';
+import { RATE_LIMITS } from '../../config/policy.js';
+import { fail } from '../respond.js';
 
 const build = (config: { windowMs: number; max: number }, message: string): RateLimitRequestHandler =>
   rateLimit({

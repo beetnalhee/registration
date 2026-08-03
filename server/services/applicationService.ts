@@ -1,27 +1,27 @@
-import type { ApplicationInput } from '../../shared/schemas';
-import type { AssignmentResultDto } from '../../shared/types';
-import { getPool, withTransaction } from '../db/pool';
-import { lockAssignment } from '../db/lock';
-import { calculateAge, resolveAgeEligibility } from '../domain/age';
-import { decideAssignment } from '../domain/assignment';
-import { resolveDefaultGroup, isBridgeZone } from '../domain/group';
-import { formatParticipantCode } from '../domain/participantCode';
-import { getMailer } from '../email/nodemailerMailer';
-import { notifyParticipant } from '../email/notificationService';
-import { PG_ERROR_CODES, asPgError, badRequest, conflict } from '../errors';
+import type { ApplicationInput } from '../../shared/schemas.js';
+import type { AssignmentResultDto } from '../../shared/types.js';
+import { getPool, withTransaction } from '../db/pool.js';
+import { lockAssignment } from '../db/lock.js';
+import { calculateAge, resolveAgeEligibility } from '../domain/age.js';
+import { decideAssignment } from '../domain/assignment.js';
+import { resolveDefaultGroup, isBridgeZone } from '../domain/group.js';
+import { formatParticipantCode } from '../domain/participantCode.js';
+import { getMailer } from '../email/nodemailerMailer.js';
+import { notifyParticipant } from '../email/notificationService.js';
+import { PG_ERROR_CODES, asPgError, badRequest, conflict } from '../errors.js';
 import {
   findWaitlistPosition,
   insertParticipant,
   type ParticipantRecord,
-} from '../repositories/participantRepository';
-import { claimSequence, reserveSeat } from '../repositories/slotRepository';
-import { toAssignmentResultDto } from './dto';
+} from '../repositories/participantRepository.js';
+import { claimSequence, reserveSeat } from '../repositories/slotRepository.js';
+import { toAssignmentResultDto } from './dto.js';
 import {
   assertPreferencesExist,
   findRoundByNo,
   loadAssignmentContext,
   loadEventContext,
-} from './eventContextService';
+} from './eventContextService.js';
 
 /** 중복 신청은 DB 제약으로 잡고, 어떤 값이 겹쳤는지에 맞는 안내로 바꿔준다. */
 const translateDuplicate = (error: unknown): never => {

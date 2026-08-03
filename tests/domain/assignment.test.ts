@@ -5,7 +5,7 @@ import {
   chooseGroup,
   decideAssignment,
   genderDeficit,
-} from '../../server/domain/assignment';
+} from '../../server/domain/assignment.js';
 import type {
   AgePolicy,
   AssignmentContext,
@@ -14,7 +14,7 @@ import type {
   GroupRule,
   GroupTallyState,
   RoundCapacityState,
-} from '../../server/domain/types';
+} from '../../server/domain/types.js';
 
 const GROUPS: GroupRule[] = [
   { code: 'SUMMER', minAge: 18, maxAge: 25, sortOrder: 1 },
