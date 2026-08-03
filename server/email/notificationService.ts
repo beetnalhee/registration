@@ -87,6 +87,22 @@ export const notifyParticipant = async (
     return false;
   }
 
+  // 배달하지 않는 구현(이메일 설정 없음)일 때는 '성공'으로 기록하지 않는다.
+  // 그렇지 않으면 관리자 화면이 보내지도 않은 메일을 보냈다고 표시한다.
+  if (!mailer.delivers) {
+    console.warn(
+      `[mail] 이메일 설정이 없어 발송하지 않았습니다. participant=${params.participant.id}`,
+    );
+    await recordEmailAttempt(client, {
+      participantId: params.participant.id,
+      kind: params.kind,
+      toAddress: params.participant.email,
+      status: 'failed',
+      errorMessage: '이메일 설정 없음 (GMAIL_USER / GMAIL_APP_PASSWORD 미설정)',
+    });
+    return false;
+  }
+
   try {
     await mailer.send(message);
     await recordEmailAttempt(client, {

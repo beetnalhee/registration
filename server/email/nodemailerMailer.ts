@@ -5,6 +5,8 @@ import { ConsoleMailer, type Mailer, type MailMessage } from './mailer.js';
 
 /** Gmail SMTP 발송. 앱 비밀번호(16자리)가 필요하다. */
 export class NodemailerMailer implements Mailer {
+  readonly delivers = true;
+
   private readonly transporter: Transporter;
   private readonly from: string;
 

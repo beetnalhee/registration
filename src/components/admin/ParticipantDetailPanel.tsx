@@ -263,19 +263,26 @@ export const ParticipantDetailPanel = ({
               {detail.data && detail.data.emailLogs.length > 0 ? (
                 <ul className="space-y-1.5">
                   {detail.data.emailLogs.map((log) => (
-                    <li
-                      key={log.id}
-                      className="flex items-center justify-between gap-3 text-[12.5px] text-slate-400"
-                    >
-                      <span>{emailKindLabel(log.kind)}</span>
-                      <span className="flex items-center gap-2">
-                        <span className={log.status === 'sent' ? 'text-glow-soft' : 'text-peach-soft'}>
-                          {log.status === 'sent' ? '성공' : '실패'}
+                    <li key={log.id} className="text-[12.5px] text-slate-400">
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{emailKindLabel(log.kind)}</span>
+                        <span className="flex items-center gap-2">
+                          <span
+                            className={log.status === 'sent' ? 'text-glow-soft' : 'text-peach-soft'}
+                          >
+                            {log.status === 'sent' ? '성공' : '실패'}
+                          </span>
+                          <span className="tabular-nums text-slate-600">
+                            {new Date(log.createdAt).toLocaleString('ko-KR')}
+                          </span>
                         </span>
-                        <span className="tabular-nums text-slate-600">
-                          {new Date(log.createdAt).toLocaleString('ko-KR')}
-                        </span>
-                      </span>
+                      </div>
+                      {/* 실패 원인을 보여줘야 관리자가 재발송으로 해결될 문제인지 판단할 수 있다 */}
+                      {log.errorMessage && (
+                        <p className="mt-0.5 text-[11.5px] leading-relaxed text-peach-soft/70">
+                          {log.errorMessage}
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>

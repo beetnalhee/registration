@@ -4,6 +4,7 @@ import { errorHandler, notFoundHandler } from './http/middleware/errorHandler.js
 import { securityHeaders } from './http/middleware/securityHeaders.js';
 import { fail, ok } from './http/respond.js';
 import { asPgError } from './errors.js';
+import { isEmailConfigured, loadEnv } from './config/env.js';
 import { adminRoutes } from './routes/adminRoutes.js';
 import { publicRoutes } from './routes/publicRoutes.js';
 import { getPool } from './db/pool.js';
@@ -45,7 +46,12 @@ export const createApp = (): Express => {
         return;
       }
 
-      ok(res, { status: 'ok' });
+      // 이메일 설정 여부도 알려준다. 설정이 없으면 배정은 되지만 메일이 나가지 않으므로
+      // 접수 시작 전에 반드시 확인해야 하는 값이다. (비밀 값은 담지 않는다)
+      ok(res, {
+        status: 'ok',
+        email: isEmailConfigured(loadEnv()) ? 'configured' : 'not_configured',
+      });
     }),
   );
 
