@@ -96,8 +96,8 @@ export const LookupPage = () => {
 
   return (
     <PageShell>
+      {/* 제목만으로 충분해 eyebrow 를 두지 않는다 ('배정 조회' 같은 말은 제목과 중복된다) */}
       <SectionTitle
-        eyebrow="my assignment"
         title="내 배정 확인하기"
         description="신청할 때 입력한 생년월일과 전화번호 뒤 4자리를 넣어주세요."
       />

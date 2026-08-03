@@ -29,8 +29,8 @@ export const CompletePage = () => {
   return (
     <PageShell bare>
       <div className="pt-10">
-        <p className="mb-6 text-center text-[12.5px] font-medium uppercase tracking-[0.24em] text-moonlight/70">
-          welcome to the dream
+        <p className="mb-6 text-center text-[13px] font-medium tracking-[0.14em] text-moonlight/70">
+          오늘 밤의 초대장
         </p>
 
         <AssignmentCard result={result} />

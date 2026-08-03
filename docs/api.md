@@ -54,7 +54,7 @@
 
 ```json
 {
-  "eventName": "사랑은 돌아오는거야",
+  "eventName": "사랑은 돌아오는 거야",
   "eventDate": "2026-08-15",
   "isOpen": true,
   "rounds": [
@@ -199,7 +199,7 @@
 
 ```json
 {
-  "eventName": "사랑은 돌아오는거야",
+  "eventName": "사랑은 돌아오는 거야",
   "eventDate": "2026-08-15",
   "isOpen": true,
   "nearFullThreshold": 0.8,
@@ -334,7 +334,7 @@
 
 ```json
 {
-  "eventName": "사랑은 돌아오는거야",
+  "eventName": "사랑은 돌아오는 거야",
   "eventDate": "2026-08-15",
   "isOpen": true,
   "nearFullThreshold": 0.8

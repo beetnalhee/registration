@@ -36,7 +36,7 @@ export const ConfirmStep = ({
         <Row label="이메일" value={form.email} />
       </div>
 
-      <h2 className="mb-3 mt-6 text-[13px] font-medium uppercase tracking-[0.16em] text-slate-400">
+      <h2 className="mb-3 mt-6 text-[13px] font-medium tracking-[0.1em] text-slate-400">
         희망 회차
       </h2>
       <ol className="glass space-y-0 px-5 py-2">

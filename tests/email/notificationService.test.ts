@@ -55,7 +55,7 @@ const participant: ParticipantRecord = {
 const baseParams = {
   participant,
   kind: 'assignment' as const,
-  eventName: '사랑은 돌아오는거야',
+  eventName: '사랑은 돌아오는 거야',
   timeLabel: '10:05 ~ 10:25',
 };
 

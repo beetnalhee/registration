@@ -28,7 +28,7 @@ export const PageShell = ({ children, bare = false, maxWidth = 'sm' }: PageShell
             className="flex items-center gap-2 text-[13px] tracking-wide text-slate-400 transition-colors hover:text-moonlight-soft"
           >
             <span aria-hidden>🌙</span>
-            사랑은 돌아오는거야
+            사랑은 돌아오는 거야
           </Link>
           <Link
             to="/lookup"

@@ -13,7 +13,7 @@ const envSchema = z.object({
   // 이메일 설정이 없으면 발송을 건너뛰고 로그만 남긴다(로컬 개발용).
   GMAIL_USER: z.string().email().optional(),
   GMAIL_APP_PASSWORD: z.string().min(1).optional(),
-  MAIL_FROM_NAME: z.string().default('사랑은 돌아오는거야'),
+  MAIL_FROM_NAME: z.string().default('사랑은 돌아오는 거야'),
 
   PUBLIC_BASE_URL: z.string().url().default('http://localhost:5173'),
   PORT: z.coerce.number().int().positive().default(3001),

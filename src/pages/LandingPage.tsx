@@ -30,12 +30,13 @@ export const LandingPage = () => {
   return (
     <PageShell bare maxWidth="sm">
       <section className="pt-10 text-center">
-        <p className="animate-fade-up text-[12.5px] font-medium uppercase tracking-[0.28em] text-moonlight/70">
-          3 minutes date
+        {/* 한글은 자간을 넓게 벌리면 흐트러져 보이므로 영문보다 좁게 잡는다 */}
+        <p className="animate-fade-up text-[13px] font-medium tracking-[0.14em] text-moonlight/70">
+          3분의 설렘
         </p>
 
         <h1 className="mt-5 animate-fade-up stagger-1 font-display text-[40px] font-extrabold leading-[1.15] tracking-tight">
-          <span className="text-moon">사랑은 돌아오는거야</span>
+          <span className="text-moon">사랑은 돌아오는 거야</span>
         </h1>
 
         <p className="mx-auto mt-5 max-w-[19rem] animate-fade-up stagger-2 text-[15px] leading-relaxed text-slate-300">
@@ -58,7 +59,7 @@ export const LandingPage = () => {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-4 flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.16em] text-slate-400">
+        <h2 className="mb-4 flex items-center gap-2 text-[13px] font-medium tracking-[0.1em] text-slate-400">
           <span aria-hidden>✨</span> 회차 안내
         </h2>
 
