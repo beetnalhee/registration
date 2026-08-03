@@ -32,10 +32,12 @@ export const Button = ({
     disabled={disabled || loading}
     className={[
       // whitespace-nowrap: 좁은 폭에서 '취소' 가 한 글자씩 세로로 쪼개지는 것을 막는다
-      'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3.5 text-[15px]',
+      'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3.5 text-[15px]',
       'transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-45',
       VARIANT_CLASSES[variant],
-      fullWidth ? 'w-full' : '',
+      // fullWidth 와 shrink-0 을 함께 주면 flex 안에서 줄어들지 못해 화면 밖으로 넘친다.
+      // 폭을 채우는 버튼은 줄어들 수 있어야 하고, 그렇지 않은 버튼만 고정한다.
+      fullWidth ? 'w-full min-w-0' : 'shrink-0',
       className,
     ]
       .filter(Boolean)

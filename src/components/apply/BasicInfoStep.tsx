@@ -37,7 +37,7 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
       <TextField
         label="닉네임"
         name="nickname"
-        placeholder="공지사항에 쓰일 닉네임"
+        placeholder="닉네임"
         value={form.nickname}
         onChange={(event) => onChange('nickname', event.target.value)}
         {...(errors.nickname ? { error: errors.nickname } : {})}
@@ -70,7 +70,7 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
       placeholder="010-1234-5678"
       value={form.phone}
       onChange={(event) => onChange('phone', formatPhoneInput(event.target.value))}
-      {...(errors.phone ? { error: errors.phone } : { hint: '숫자만 입력하면 자동으로 맞춰집니다.' })}
+      {...(errors.phone ? { error: errors.phone } : { hint: '숫자만 입력해주세요.' })}
     />
 
     <TextField
@@ -79,7 +79,7 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
       type="email"
       inputMode="email"
       autoComplete="email"
-      placeholder="you@example.com"
+      placeholder="love@gmail.com"
       value={form.email}
       onChange={(event) => onChange('email', event.target.value)}
       {...(errors.email ? { error: errors.email } : { hint: '배정 결과를 이 주소로 보내드려요.' })}
