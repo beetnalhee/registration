@@ -56,7 +56,7 @@ const baseParams = {
   participant,
   kind: 'assignment' as const,
   eventName: '사랑은 돌아오는 거야',
-  timeLabel: '10:05 ~ 10:25',
+  timeLabel: '22:05 ~ 22:25',
 };
 
 /** 발송된 메시지를 담아두는 가짜 배달 구현 */
@@ -152,9 +152,9 @@ describe('notifyParticipant', () => {
     const message = mailer.sent[0];
     expect(message?.to).toBe('heeju@example.com');
     expect(message?.subject).toContain('SUMMER-2-F-013');
-    expect(message?.html).toContain('10:05 ~ 10:25');
+    expect(message?.html).toContain('22:05 ~ 22:25');
     // 내부 운영 정보는 참가자 메일에 절대 들어가지 않는다.
-    // ('25' 같은 숫자로 검사하면 시간(10:25)·색상(rgba(255..))에 걸려 의미가 없다)
+    // ('25' 같은 숫자로 검사하면 시간(22:25)·색상(rgba(255..))에 걸려 의미가 없다)
     expect(message?.html.toLowerCase()).not.toContain('bridge');
     expect(message?.html).not.toContain(`만 ${participant.ageAtEvent}`);
     expect(message?.html).not.toContain('성비');

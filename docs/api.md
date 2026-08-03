@@ -58,9 +58,9 @@
   "eventDate": "2026-08-15",
   "isOpen": true,
   "rounds": [
-    { "roundNo": 1, "startsAt": "09:40", "endsAt": "10:00", "timeLabel": "09:40 ~ 10:00" },
-    { "roundNo": 2, "startsAt": "10:05", "endsAt": "10:25", "timeLabel": "10:05 ~ 10:25" },
-    { "roundNo": 3, "startsAt": "10:30", "endsAt": "10:50", "timeLabel": "10:30 ~ 10:50" }
+    { "roundNo": 1, "startsAt": "21:40", "endsAt": "22:00", "timeLabel": "21:40 ~ 22:00" },
+    { "roundNo": 2, "startsAt": "22:05", "endsAt": "22:25", "timeLabel": "22:05 ~ 22:25" },
+    { "roundNo": 3, "startsAt": "22:30", "endsAt": "22:50", "timeLabel": "22:30 ~ 22:50" }
   ]
 }
 ```
@@ -115,7 +115,7 @@
   "nickname": "희주",
   "groupCode": "SUMMER",
   "roundNo": 2,
-  "timeLabel": "10:05 ~ 10:25",
+  "timeLabel": "22:05 ~ 22:25",
   "participantCode": "SUMMER-2-F-013",
   "waitlistPosition": null
 }
@@ -153,7 +153,7 @@
   "nickname": "희주",
   "groupCode": "SUMMER",
   "roundNo": 2,
-  "timeLabel": "10:05 ~ 10:25",
+  "timeLabel": "22:05 ~ 22:25",
   "participantCode": "SUMMER-2-F-013",
   "waitlistPosition": null
 }
@@ -209,7 +209,7 @@
   "rounds": [
     {
       "roundNo": 1,
-      "timeLabel": "09:40 ~ 10:00",
+      "timeLabel": "21:40 ~ 22:00",
       "male":   { "filled": 18, "capacity": 20 },
       "female": { "filled": 17, "capacity": 20 },
       "availability": "near_full",
@@ -250,7 +250,7 @@
       "status": "assigned",
       "groupCode": "SUMMER",
       "roundNo": 2,
-      "timeLabel": "10:05 ~ 10:25",
+      "timeLabel": "22:05 ~ 22:25",
       "participantCode": "SUMMER-2-F-013",
       "defaultGroupCode": "SUMMER",
       "isBridgeZone": true,
