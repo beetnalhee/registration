@@ -32,7 +32,7 @@ export const LandingPage = () => {
       <section className="pt-10 text-center">
         {/* 한글은 자간을 넓게 벌리면 흐트러져 보이므로 영문보다 좁게 잡는다 */}
         <p className="animate-fade-up text-[13px] font-medium tracking-[0.14em] text-moonlight/70">
-          3분의 설렘
+          로테이션 소개팅
         </p>
 
         <h1 className="mt-5 animate-fade-up stagger-1 font-display text-[40px] font-extrabold leading-[1.15] tracking-tight">
