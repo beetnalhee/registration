@@ -36,6 +36,8 @@ export interface ParticipantFilters {
   roundNo?: number;
   groupCode?: GroupCode;
   gender?: string;
+  /** true = 출석한 사람만, false = 아직 도착하지 않은 사람만 */
+  checkedIn?: boolean;
   page?: number;
   pageSize?: number;
 }
@@ -95,6 +97,22 @@ export const promoteParticipant = (
   request<AdminParticipantDto>(`/admin/participants/${id}/promote`, {
     method: 'POST',
     body: target,
+    accessToken: token(),
+  });
+
+/** 리셉션 출석 확인. 중복 클릭해도 첫 도착 시각이 유지된다. */
+export const checkInParticipant = (id: string): Promise<AdminParticipantDto> =>
+  request<AdminParticipantDto>(`/admin/participants/${id}/check-in`, {
+    method: 'POST',
+    body: {},
+    accessToken: token(),
+  });
+
+/** 출석 취소 (잘못 눌렀을 때) */
+export const undoCheckInParticipant = (id: string): Promise<AdminParticipantDto> =>
+  request<AdminParticipantDto>(`/admin/participants/${id}/undo-check-in`, {
+    method: 'POST',
+    body: {},
     accessToken: token(),
   });
 

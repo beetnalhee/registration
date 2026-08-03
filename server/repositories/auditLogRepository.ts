@@ -5,7 +5,9 @@ export type AuditAction =
   | 'cancel'
   | 'promote'
   | 'resend_email'
-  | 'update_settings';
+  | 'update_settings'
+  | 'check_in'
+  | 'undo_check_in';
 
 export interface AuditEntry {
   adminEmail: string;

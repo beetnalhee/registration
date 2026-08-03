@@ -58,6 +58,7 @@ export const toAdminParticipantDto = (
   roundNo: participant.assignedRoundNo,
   timeLabel,
   participantCode: participant.participantCode,
+  checkedInAt: participant.checkedInAt,
   defaultGroupCode: participant.defaultGroupCode,
   isBridgeZone: participant.isBridgeZone,
   isGroupOverridden:

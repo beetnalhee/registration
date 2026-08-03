@@ -117,6 +117,14 @@ export const ParticipantDetailPanel = ({
                     : '미배정'
                 }
               />
+              <Row
+                label="출석"
+                value={
+                  participant.checkedInAt
+                    ? `출석 (${new Date(participant.checkedInAt).toLocaleString('ko-KR')})`
+                    : '미도착'
+                }
+              />
               <Row label="성별" value={GENDER_LABELS[participant.gender]} />
               <Row label="생년월일" value={`${participant.birthdate} (만 ${participant.age}세)`} />
               <Row label="연락처" value={formatPhone(participant.phone)} />

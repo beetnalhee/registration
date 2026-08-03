@@ -5,6 +5,7 @@ import { logout } from '../../lib/adminApi';
 
 const NAV_ITEMS = [
   { to: '/admin', label: '현황판' },
+  { to: '/admin/reception', label: '출석 체크' },
   { to: '/admin/participants', label: '참가자 관리' },
 ] as const;
 

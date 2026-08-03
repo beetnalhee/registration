@@ -87,6 +87,11 @@ export const adminParticipantQuerySchema = z.object({
   roundNo: z.coerce.number().int().positive().optional(),
   groupCode: groupCodeSchema.optional(),
   gender: genderSchema.optional(),
+  /** 리셉션 화면에서 '미도착자만 보기' 에 쓰인다. */
+  checkedIn: z
+    .union([z.literal('true'), z.literal('false'), z.boolean()])
+    .transform((value) => value === true || value === 'true')
+    .optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(200).default(50),
 });

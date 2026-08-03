@@ -80,6 +80,8 @@ const CSV_HEADERS = [
   '희망1',
   '희망2',
   '희망3',
+  '출석',
+  '출석시각',
   '기본그룹',
   '그룹이동',
   '신청시각',
@@ -122,6 +124,8 @@ export const buildParticipantsCsv = async (client: Queryable): Promise<string> =
         participant.preferences[0] ?? null,
         participant.preferences[1] ?? null,
         participant.preferences[2] ?? null,
+        participant.checkedInAt ? 'O' : '',
+        participant.checkedInAt,
         participant.defaultGroupCode,
         participant.assignedGroupCode !== null &&
         participant.assignedGroupCode !== participant.defaultGroupCode

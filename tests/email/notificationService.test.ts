@@ -48,6 +48,7 @@ const participant: ParticipantRecord = {
   participantCode: 'SUMMER-2-F-013',
   waitlistedAt: null,
   cancelledAt: null,
+  checkedInAt: null,
   createdAt: '2026-08-01T00:00:00.000Z',
 };
 

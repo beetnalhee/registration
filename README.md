@@ -90,6 +90,7 @@ npm run dev
 | `/lookup` | 본인 조회 |
 | `/admin/login` | 운영진 로그인 |
 | `/admin` | 실시간 현황판 + 행사 설정 |
+| `/admin/reception` | 리셉션 출석 체크 (검색 → 출석, 회차별 카운터, 미도착자 필터) |
 | `/admin/participants` | 참가자 검색·상세·회차/그룹 변경·취소·대기자 승격·CSV·이메일 재발송 |
 
 ## Supabase 설정
@@ -101,7 +102,11 @@ Supabase 대시보드 > SQL Editor 에서 순서대로 실행합니다.
 ```
 supabase/migrations/001_schema.sql
 supabase/migrations/002_seed.sql
+supabase/migrations/003_attendance.sql
 ```
+
+> 이미 001·002 를 실행한 뒤라면 `003_attendance.sql` 만 추가로 실행하면 됩니다.
+> 기존 데이터에 영향을 주지 않습니다(컬럼 추가와 인덱스 생성뿐).
 
 > ⚠️ `002_seed.sql` 의 `event_date` 를 **실제 행사 당일**로 바꿔주세요.
 > 만나이 계산 기준일이므로 이 값이 틀리면 그룹 배정이 어긋납니다.

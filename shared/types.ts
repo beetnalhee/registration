@@ -88,6 +88,12 @@ export interface GenderCountDto {
   capacity: number;
 }
 
+/** 회차별 출석 현황. 배정 인원 대비 몇 명이 도착했는지. */
+export interface AttendanceDto {
+  checkedIn: number;
+  assigned: number;
+}
+
 export interface RoundOverviewDto {
   roundNo: number;
   timeLabel: string;
@@ -95,6 +101,7 @@ export interface RoundOverviewDto {
   female: GenderCountDto;
   availability: RoundAvailability;
   groups: SlotCountDto[];
+  attendance: AttendanceDto;
 }
 
 export interface AdminOverviewDto {
@@ -123,6 +130,8 @@ export interface AdminParticipantDto {
   roundNo: number | null;
   timeLabel: string | null;
   participantCode: string | null;
+  /** 출석 확인 시각. null 이면 아직 도착하지 않음. */
+  checkedInAt: string | null;
   /** 내부 운영 정보 — 관리자에게만 노출 */
   defaultGroupCode: GroupCode;
   isBridgeZone: boolean;

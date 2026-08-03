@@ -58,6 +58,24 @@ export const RoundOverviewCard = ({ round }: { round: RoundOverviewDto }) => (
       />
     </div>
 
+    {/* 출석은 행사 당일에만 의미가 있으므로 배정된 사람이 생긴 뒤에만 보여준다 */}
+    {round.attendance.assigned > 0 && (
+      <div className="mt-4 border-t border-white/[0.07] pt-3.5">
+        <div className="flex items-baseline justify-between">
+          <span className="text-[11.5px] uppercase tracking-[0.14em] text-slate-500">출석</span>
+          <span className="text-[13.5px] font-semibold tabular-nums text-glow-soft">
+            {round.attendance.checkedIn}
+            <span className="text-slate-500"> / {round.attendance.assigned}</span>
+            {round.attendance.checkedIn < round.attendance.assigned && (
+              <span className="ml-2 text-[12.5px] text-peach-soft">
+                미도착 {round.attendance.assigned - round.attendance.checkedIn}
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    )}
+
     <div className="mt-4 border-t border-white/[0.07] pt-3.5">
       <p className="mb-2 text-[11.5px] uppercase tracking-[0.14em] text-slate-500">그룹 구성</p>
       <ul className="space-y-1.5">

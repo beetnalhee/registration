@@ -26,6 +26,10 @@ import {
   resendParticipantEmail,
 } from '../services/admin/participantMutationService.js';
 import { updateSettings } from '../services/admin/settingsAdminService.js';
+import {
+  checkInParticipant,
+  undoCheckInParticipant,
+} from '../services/admin/attendanceService.js';
 
 const participantIdSchema = z.object({ id: z.string().uuid('참가자 ID 형식이 올바르지 않습니다.') });
 
@@ -138,6 +142,25 @@ adminRoutes.post(
         participantId: id,
       }),
     );
+  }),
+);
+
+// ── 리셉션 출석 체크 ───────────────────────────────────────────────────────
+adminRoutes.post(
+  '/participants/:id/check-in',
+  asyncHandler(async (req, res) => {
+    const { id } = participantIdSchema.parse(req.params);
+
+    ok(res, await checkInParticipant({ adminEmail: getAdmin(res).email, participantId: id }));
+  }),
+);
+
+adminRoutes.post(
+  '/participants/:id/undo-check-in',
+  asyncHandler(async (req, res) => {
+    const { id } = participantIdSchema.parse(req.params);
+
+    ok(res, await undoCheckInParticipant({ adminEmail: getAdmin(res).email, participantId: id }));
   }),
 );
 

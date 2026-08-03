@@ -1,7 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { resetSchema } from './support/schema.js';
 
 /**
  * 동시 신청 통합 테스트 — 실제 PostgreSQL 이 필요하다.
@@ -15,9 +14,6 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
  *   TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:55432/postgres npm test
  */
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
-
-const readSql = (name: string): string =>
-  readFileSync(fileURLToPath(new URL(`../../supabase/migrations/${name}`, import.meta.url)), 'utf8');
 
 describe.skipIf(!TEST_DATABASE_URL)('동시 신청 처리', () => {
   let pool: pg.Pool;
@@ -35,10 +31,8 @@ describe.skipIf(!TEST_DATABASE_URL)('동시 신청 처리', () => {
     pg.types.setTypeParser(1082, (value) => value);
     pool = new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 20 });
 
-    // 매 실행마다 깨끗한 스키마에서 시작한다.
-    await pool.query('drop schema public cascade; create schema public;');
-    await pool.query(readSql('001_schema.sql'));
-    await pool.query(readSql('002_seed.sql'));
+    // 매 실행마다 깨끗한 스키마에서 시작한다(모든 마이그레이션 적용).
+    await resetSchema(pool);
 
     ({ submitApplication } = await import('../../server/services/applicationService.js'));
   }, 60_000);

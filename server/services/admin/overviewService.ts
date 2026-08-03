@@ -2,7 +2,11 @@ import { GROUP_CODES } from '../../../shared/constants.js';
 import type { AdminOverviewDto, GenderCountDto, SlotCountDto } from '../../../shared/types.js';
 import type { Queryable } from '../../db/pool.js';
 import { combineAvailability, resolveAvailability } from '../../domain/availability.js';
-import { countAssignedByGroup, countByStatus } from '../../repositories/participantRepository.js';
+import {
+  countAssignedByGroup,
+  countAttendanceByRound,
+  countByStatus,
+} from '../../repositories/participantRepository.js';
 import { findActiveRounds } from '../../repositories/roundRepository.js';
 import { findEventSettings } from '../../repositories/settingsRepository.js';
 import { findCapacityStates } from '../../repositories/slotRepository.js';
@@ -28,12 +32,13 @@ const toGenderCount = (
  * 이 응답은 requireAdmin 미들웨어를 통과한 요청에만 반환된다.
  */
 export const getAdminOverview = async (client: Queryable): Promise<AdminOverviewDto> => {
-  const [settings, rounds, capacities, groupCounts, statusTally] = await Promise.all([
+  const [settings, rounds, capacities, groupCounts, statusTally, attendance] = await Promise.all([
     findEventSettings(client),
     findActiveRounds(client),
     findCapacityStates(client),
     countAssignedByGroup(client),
     countByStatus(client),
+    countAttendanceByRound(client),
   ]);
 
   const countOf = (roundNo: number, groupCode: string, gender: Gender): number =>
@@ -69,7 +74,20 @@ export const getAdminOverview = async (client: Queryable): Promise<AdminOverview
         female: countOf(round.roundNo, groupCode, 'F'),
       }));
 
-      return { roundNo: round.roundNo, timeLabel: round.timeLabel, male, female, availability, groups };
+      const counted = attendance.find((item) => item.roundNo === round.roundNo);
+
+      return {
+        roundNo: round.roundNo,
+        timeLabel: round.timeLabel,
+        male,
+        female,
+        availability,
+        groups,
+        attendance: {
+          checkedIn: counted?.checkedIn ?? 0,
+          assigned: counted?.assigned ?? 0,
+        },
+      };
     }),
   };
 };

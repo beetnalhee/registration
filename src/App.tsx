@@ -6,6 +6,7 @@ import { LookupPage } from './pages/LookupPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminParticipantsPage } from './pages/admin/AdminParticipantsPage';
+import { ReceptionPage } from './pages/admin/ReceptionPage';
 import { RequireAdminSession } from './pages/admin/RequireAdminSession';
 
 export const App = () => (
@@ -19,6 +20,7 @@ export const App = () => (
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route element={<RequireAdminSession />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/reception" element={<ReceptionPage />} />
         <Route path="/admin/participants" element={<AdminParticipantsPage />} />
       </Route>
 

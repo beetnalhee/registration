@@ -28,6 +28,12 @@ export const getPool = (): pg.Pool => {
   // DATE(1082) 를 Date 객체로 바꾸지 않고 'YYYY-MM-DD' 문자열로 그대로 받는다.
   pg.types.setTypeParser(1082, (value) => value);
 
+  // TIMESTAMPTZ(1184) 는 ISO 8601 문자열로 받는다.
+  // 기본값인 Date 객체로 두면 리포지토리 타입(string) 과 어긋나고,
+  // CSV 에서 String(Date) 가 'Sat Aug 03 2026 ...' 형태로 나가 버린다.
+  // 여기서 한 번 정규화해 두면 응답 JSON·CSV·프론트의 new Date() 가 모두 일관된다.
+  pg.types.setTypeParser(1184, (value) => new Date(value).toISOString());
+
   // SSL 여부는 코드가 아니라 연결 문자열이 결정한다.
   // 운영(Supabase)에서는 DATABASE_URL 에 ?sslmode=require 를 붙이고,
   // 로컬/테스트용 PostgreSQL 은 붙이지 않으면 평문으로 연결된다.
