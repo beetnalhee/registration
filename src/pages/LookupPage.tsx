@@ -3,6 +3,7 @@ import { PARTICIPANT_STATUS_LABELS } from '@shared/constants';
 import { lookupSchema } from '@shared/schemas';
 import type { LookupResultDto } from '@shared/types';
 import { AssignmentCard } from '../components/result/AssignmentCard';
+import { BirthdateField } from '../components/ui/BirthdateField';
 import { Button } from '../components/ui/Button';
 import { ErrorBanner } from '../components/ui/Feedback';
 import { TextField } from '../components/ui/Field';
@@ -111,12 +112,10 @@ export const LookupPage = () => {
           void handleSubmit();
         }}
       >
-        <TextField
+        <BirthdateField
           label="생년월일"
-          name="birthdate"
-          type="date"
           value={form.birthdate}
-          onChange={(event) => setForm((previous) => ({ ...previous, birthdate: event.target.value }))}
+          onChange={(value) => setForm((previous) => ({ ...previous, birthdate: value }))}
           {...(fieldErrors.birthdate ? { error: fieldErrors.birthdate } : {})}
         />
 

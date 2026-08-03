@@ -1,5 +1,7 @@
 import { GENDER_LABELS, GENDERS } from '@shared/constants';
+import { formatPhoneInput } from '@shared/format';
 import type { Gender } from '@shared/types';
+import { BirthdateField } from '../ui/BirthdateField';
 import { ChoiceGroup, TextField } from '../ui/Field';
 import type { ApplyFormState, FieldErrors } from './formState';
 
@@ -12,7 +14,6 @@ interface BasicInfoStepProps {
 const GENDER_OPTIONS = GENDERS.map((value) => ({
   value,
   label: GENDER_LABELS[value],
-  emoji: value === 'M' ? '🌊' : '🌸',
 }));
 
 /**
@@ -28,7 +29,7 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
         label="이름"
         name="name"
         autoComplete="name"
-        placeholder="김희주"
+        placeholder="이름"
         value={form.name}
         onChange={(event) => onChange('name', event.target.value)}
         {...(errors.name ? { error: errors.name } : {})}
@@ -36,20 +37,18 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
       <TextField
         label="닉네임"
         name="nickname"
-        placeholder="현장에서 불릴 이름"
+        placeholder="공지사항에 쓰일 닉네임"
         value={form.nickname}
         onChange={(event) => onChange('nickname', event.target.value)}
         {...(errors.nickname ? { error: errors.nickname } : {})}
       />
     </div>
 
-    <TextField
+    <BirthdateField
       label="생년월일"
-      name="birthdate"
-      type="date"
       value={form.birthdate}
-      onChange={(event) => onChange('birthdate', event.target.value)}
-      {...(errors.birthdate ? { error: errors.birthdate } : { hint: '참가 안내에 사용됩니다.' })}
+      onChange={(value) => onChange('birthdate', value)}
+      {...(errors.birthdate ? { error: errors.birthdate } : {})}
     />
 
     <ChoiceGroup<Gender>
@@ -61,6 +60,7 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
       {...(errors.gender ? { error: errors.gender } : {})}
     />
 
+    {/* 하이픈은 입력하는 대로 자동으로 붙는다. 서버는 숫자만 남겨 저장한다. */}
     <TextField
       label="연락처"
       name="phone"
@@ -69,8 +69,8 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
       autoComplete="tel"
       placeholder="010-1234-5678"
       value={form.phone}
-      onChange={(event) => onChange('phone', event.target.value)}
-      {...(errors.phone ? { error: errors.phone } : {})}
+      onChange={(event) => onChange('phone', formatPhoneInput(event.target.value))}
+      {...(errors.phone ? { error: errors.phone } : { hint: '숫자만 입력하면 자동으로 맞춰집니다.' })}
     />
 
     <TextField

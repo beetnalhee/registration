@@ -31,7 +31,8 @@ export const Button = ({
     type="button"
     disabled={disabled || loading}
     className={[
-      'inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-[15px]',
+      // whitespace-nowrap: 좁은 폭에서 '취소' 가 한 글자씩 세로로 쪼개지는 것을 막는다
+      'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3.5 text-[15px]',
       'transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-45',
       VARIANT_CLASSES[variant],
       fullWidth ? 'w-full' : '',

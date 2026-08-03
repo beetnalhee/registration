@@ -48,7 +48,6 @@ export const TextField = ({ label, error, hint, id, className = '', ...rest }: T
 export interface ChoiceOption<T extends string> {
   value: T;
   label: string;
-  emoji?: string;
 }
 
 interface ChoiceGroupProps<T extends string> {
@@ -94,7 +93,6 @@ export const ChoiceGroup = <T extends string>({
               onChange={() => onChange(option.value)}
               className="sr-only"
             />
-            {option.emoji && <span aria-hidden>{option.emoji}</span>}
             <span className={selected ? 'font-semibold' : ''}>{option.label}</span>
           </label>
         );
