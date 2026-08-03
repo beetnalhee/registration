@@ -76,7 +76,9 @@ export const LandingPage = () => {
               >
                 <div>
                   <p className="text-[15px] font-semibold text-slate-100">{round.roundNo}회차</p>
-                  <p className="mt-1 text-[13.5px] tabular-nums text-slate-400">{round.timeLabel}</p>
+                  {/* 회차 선택 화면과 같은 기준으로 시작 시각만 보여준다.
+                      전체 시간대는 배정이 확정된 뒤(결과 카드·이메일)에 안내한다. */}
+                  <p className="mt-1 text-[13.5px] tabular-nums text-slate-400">{round.startsAt}</p>
                 </div>
                 <AvailabilityBadge availability={availabilityOf(round.roundNo)} />
               </li>
