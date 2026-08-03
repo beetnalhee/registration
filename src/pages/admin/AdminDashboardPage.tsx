@@ -36,7 +36,7 @@ export const AdminDashboardPage = () => {
         <div className="space-y-6 pb-12">
           <section className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="font-display text-[24px] font-bold text-slate-50">
+              <h1 className="text-[24px] font-bold tracking-[-0.015em] text-slate-50">
                 {overview.data.eventName}
               </h1>
               <p className="mt-1 text-[13px] text-slate-400">

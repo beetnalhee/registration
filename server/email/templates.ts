@@ -48,7 +48,8 @@ const layout = (params: { title: string; preheader: string; body: string }): str
                     border-radius:20px;border:1px solid rgba(255,217,142,0.25);overflow:hidden;">
         <tr><td style="padding:36px 32px 8px;text-align:center;">
           <div style="font-size:28px;line-height:1;">🌙</div>
-          <h1 style="margin:16px 0 0;font-family:'Nanum Myeongjo',serif;font-size:22px;
+          <!-- 메일 클라이언트는 웹폰트를 신뢰할 수 없으므로 기기 기본 산세리프로 둔다 -->
+          <h1 style="margin:16px 0 0;font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:22px;
                      font-weight:700;color:#FFEFC7;letter-spacing:-0.01em;">${escapeHtml(params.title)}</h1>
         </td></tr>
         <tr><td style="padding:8px 32px 36px;font-family:-apple-system,'Apple SD Gothic Neo',

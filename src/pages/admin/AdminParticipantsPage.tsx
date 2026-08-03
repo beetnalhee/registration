@@ -110,7 +110,7 @@ export const AdminParticipantsPage = () => {
       <div className="pb-12">
         <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-[24px] font-bold text-slate-50">참가자 관리</h1>
+            <h1 className="text-[24px] font-bold tracking-[-0.015em] text-slate-50">참가자 관리</h1>
             <p className="mt-1 text-[13px] text-slate-400">
               총 {list.data?.total ?? 0}명 · 이름 · 닉네임 · 이메일 · 연락처 · 참가번호로 검색
             </p>

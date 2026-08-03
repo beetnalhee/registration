@@ -41,7 +41,7 @@ export default {
       },
       fontFamily: {
         sans: ['Pretendard', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"Nanum Myeongjo"', 'Pretendard', 'serif'],
+        display: ['Jua', 'Pretendard', 'sans-serif'],
       },
       boxShadow: {
         glow: '0 0 40px -8px rgba(255, 217, 142, 0.45)',

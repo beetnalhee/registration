@@ -168,7 +168,7 @@ export const ReceptionPage = () => {
     <AdminShell>
       <div className="pb-12">
         <header className="mb-5">
-          <h1 className="font-display text-[24px] font-bold text-slate-50">리셉션 · 출석 체크</h1>
+          <h1 className="text-[24px] font-bold tracking-[-0.015em] text-slate-50">리셉션 · 출석 체크</h1>
           <p className="mt-1 text-[13px] text-slate-400">
             닉네임 · 참가번호 · 이름 · 연락처 아무거나 입력하세요
           </p>

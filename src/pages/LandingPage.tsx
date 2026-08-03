@@ -35,7 +35,7 @@ export const LandingPage = () => {
           로테이션 소개팅
         </p>
 
-        <h1 className="mt-5 animate-fade-up stagger-1 font-display text-[40px] font-extrabold leading-[1.15] tracking-tight">
+        <h1 className="mt-5 animate-fade-up stagger-1 font-display text-[44px] leading-[1.2] tracking-[-0.01em]">
           <span className="text-moon">사랑은 돌아오는 거야</span>
         </h1>
 

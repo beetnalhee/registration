@@ -64,8 +64,8 @@ export const SectionTitle = ({
     )}
     <h1
       className={[
-        'text-[26px] font-bold leading-tight text-slate-50',
-        plain ? 'tracking-[-0.015em]' : 'font-display tracking-tight',
+        'text-[26px] leading-tight text-slate-50',
+        plain ? 'font-bold tracking-[-0.015em]' : 'font-display tracking-tight',
       ].join(' ')}
     >
       {title}
