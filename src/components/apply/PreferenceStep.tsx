@@ -80,8 +80,11 @@ export const PreferenceStep = ({
                   <span className="block text-[15px] font-semibold text-slate-100">
                     {round.roundNo}회차
                   </span>
+                  {/* 선택 단계에서는 시작 시각만 보여준다. 세 회차를 훑어 고르는 화면이라
+                      끝 시각까지 있으면 숫자가 많아져 비교가 느려진다.
+                      전체 시간대는 확인 단계와 배정 결과·이메일에서 안내한다. */}
                   <span className="mt-0.5 block text-[13.5px] tabular-nums text-slate-400">
-                    {round.timeLabel}
+                    {round.startsAt}
                   </span>
                 </span>
 
