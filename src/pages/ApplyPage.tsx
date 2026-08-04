@@ -6,11 +6,10 @@ import { PreferenceStep } from '../components/apply/PreferenceStep';
 import { StepIndicator, TOTAL_STEPS } from '../components/apply/StepIndicator';
 import {
   EMPTY_FORM,
-  togglePreference,
   toApplicationPayload,
   updateForm,
   validateBasicInfo,
-  validatePreferences,
+  validateRoundSelection,
   type ApplyFormState,
   type FieldErrors,
 } from '../components/apply/formState';
@@ -58,7 +57,7 @@ export const ApplyPage = () => {
     }
 
     if (step === 2) {
-      const found = validatePreferences(form, rounds.length);
+      const found = validateRoundSelection(form);
       setErrors(found);
       if (Object.keys(found).length > 0) {
         return;
@@ -149,12 +148,9 @@ export const ApplyPage = () => {
             <PreferenceStep
               rounds={rounds}
               availability={availability.data ?? []}
-              preferences={form.preferences}
+              selected={form.roundNo}
               errors={errors}
-              onToggle={(roundNo) =>
-                handleChange('preferences', togglePreference(form.preferences, roundNo))
-              }
-              onReset={() => handleChange('preferences', [])}
+              onSelect={(roundNo) => handleChange('roundNo', roundNo)}
             />
           ))}
 

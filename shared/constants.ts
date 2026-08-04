@@ -37,8 +37,10 @@ export const PARTICIPANT_STATUS_LABELS: Record<(typeof PARTICIPANT_STATUSES)[num
   cancelled: '취소',
 };
 
-/** 희망 회차는 3순위까지 받는다. */
-export const PREFERENCE_COUNT = 3;
+/**
+ * 회차는 1개만 고른다(선착순).
+ * 고른 회차가 마감이면 다음 순위로 내려가지 않고 그 회차의 대기자가 된다.
+ */
 
 /** 참가번호 자리수: SUMMER-2-F-013 의 '013' 부분 */
 export const SEQUENCE_PAD_LENGTH = 3;

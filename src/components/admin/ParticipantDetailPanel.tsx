@@ -129,10 +129,7 @@ export const ParticipantDetailPanel = ({
               <Row label="생년월일" value={`${participant.birthdate} (만 ${participant.age}세)`} />
               <Row label="연락처" value={formatPhone(participant.phone)} />
               <Row label="이메일" value={participant.email} />
-              <Row
-                label="희망 회차"
-                value={participant.preferences.map((no, index) => `${index + 1}순위 ${no}회차`).join(' · ')}
-              />
+              <Row label="선택한 회차" value={`${participant.preferredRoundNo}회차`} />
               <Row label="기본 그룹" value={participant.defaultGroupCode} />
             </div>
 

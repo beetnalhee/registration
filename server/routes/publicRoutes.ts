@@ -1,12 +1,22 @@
 import { Router } from 'express';
-import { applicationSchema, lookupSchema, roundAvailabilityQuerySchema } from '../../shared/schemas.js';
+import {
+  applicationSchema,
+  lookupSchema,
+  roundAvailabilityQuerySchema,
+  selfCancelSchema,
+} from '../../shared/schemas.js';
 import { getPool } from '../db/pool.js';
 import { asyncHandler } from '../http/asyncHandler.js';
-import { applicationLimiter, lookupLimiter } from '../http/middleware/rateLimiters.js';
+import {
+  applicationLimiter,
+  lookupLimiter,
+  selfCancelLimiter,
+} from '../http/middleware/rateLimiters.js';
 import { ok } from '../http/respond.js';
 import { submitApplication } from '../services/applicationService.js';
 import { getEventInfo, getRoundAvailabilities } from '../services/availabilityService.js';
 import { lookupAssignment } from '../services/lookupService.js';
+import { cancelOwnApplication } from '../services/selfCancelService.js';
 
 /**
  * 참가자용 공개 API.
@@ -46,5 +56,18 @@ publicRoutes.post(
   asyncHandler(async (req, res) => {
     const input = lookupSchema.parse(req.body);
     ok(res, await lookupAssignment(input));
+  }),
+);
+
+/**
+ * 본인 취소. 조회와 같은 자격증명을 요구하고 접수 중일 때만 동작한다.
+ * 파괴적인 동작이므로 조회보다 촘촘한 요청 제한을 적용한다.
+ */
+publicRoutes.post(
+  '/participants/cancel',
+  selfCancelLimiter,
+  asyncHandler(async (req, res) => {
+    const input = selfCancelSchema.parse(req.body);
+    ok(res, await cancelOwnApplication(input));
   }),
 );

@@ -1,10 +1,11 @@
-import type { ApplicationInput, LookupInput } from '@shared/schemas';
+import type { ApplicationInput, LookupInput, SelfCancelInput } from '@shared/schemas';
 import type {
   AssignmentResultDto,
   EventInfoDto,
   Gender,
   LookupResultDto,
   RoundAvailabilityDto,
+  SelfCancelResultDto,
 } from '@shared/types';
 import { request } from './api';
 
@@ -29,3 +30,7 @@ export const submitApplication = (input: ApplicationInput): Promise<AssignmentRe
 
 export const lookupAssignment = (input: LookupInput): Promise<LookupResultDto> =>
   request<LookupResultDto>('/lookup', { method: 'POST', body: input });
+
+/** 본인 취소. 조회와 같은 자격증명을 쓰고, 되돌릴 수 없다. */
+export const cancelOwnApplication = (input: SelfCancelInput): Promise<SelfCancelResultDto> =>
+  request<SelfCancelResultDto>('/participants/cancel', { method: 'POST', body: input });

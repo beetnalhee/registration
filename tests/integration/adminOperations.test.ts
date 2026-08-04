@@ -65,7 +65,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
       index: number;
       gender: 'M' | 'F';
       birthdate: string;
-      preferences: number[];
+      roundNo: number;
     }> = {},
   ) => {
     const index = overrides.index ?? 1;
@@ -76,7 +76,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
       gender: overrides.gender ?? 'F',
       phone: `010${String(20_000_000 + index).padStart(8, '0')}`,
       email: `member${index}@example.com`,
-      preferences: overrides.preferences ?? [1, 2, 3],
+      roundNo: overrides.roundNo ?? 1,
     });
   };
 
@@ -145,8 +145,8 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
         where round_id = (select id from rounds where round_no = 2)`,
     );
 
-    await apply({ index: 1, preferences: [1, 2, 3] });
-    await apply({ index: 2, preferences: [2, 1, 3] });
+    await apply({ index: 1, roundNo: 1 });
+    await apply({ index: 2, roundNo: 2 });
 
     await expect(
       services.mutations.reassignParticipant({
@@ -160,15 +160,15 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
   it('대기자를 승격하면 참가번호가 발급되고 대기 상태가 풀린다', async () => {
     await pool.query('update round_capacity set capacity = 1');
 
-    await apply({ index: 1 });
-    await apply({ index: 2 });
-    await apply({ index: 3 });
-    const waiting = await apply({ index: 4 });
+    // 1회차 한 자리가 차고, 같은 회차를 고른 다음 사람이 대기 1번이 된다.
+    await apply({ index: 1, roundNo: 1 });
+    const waiting = await apply({ index: 2, roundNo: 1 });
 
     expect(waiting.status).toBe('waitlisted');
     expect(waiting.waitlistPosition).toBe(1);
+    expect(waiting.waitingForRoundNo).toBe(1);
 
-    // 자리를 하나 비운 뒤 승격
+    // 자리를 비운 뒤 승격
     await services.mutations.cancelParticipant({
       adminEmail: ADMIN_EMAIL,
       participantId: await idOf(1),
@@ -176,12 +176,27 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
 
     const promoted = await services.mutations.promoteParticipant({
       adminEmail: ADMIN_EMAIL,
-      participantId: await idOf(4),
+      participantId: await idOf(2),
     });
 
     expect(promoted.status).toBe('assigned');
+    // 회차를 지정하지 않아도 본인이 고른 회차로 배정된다.
     expect(promoted.roundNo).toBe(1);
     expect(promoted.participantCode).toBe('SUMMER-1-F-002');
+  });
+
+  it('선착순이므로 고른 회차가 마감이면 빈 회차가 있어도 대기자가 된다', async () => {
+    await pool.query(
+      `update round_capacity set capacity = 1
+        where round_id = (select id from rounds where round_no = 1)`,
+    );
+
+    await apply({ index: 1, roundNo: 1 });
+    const second = await apply({ index: 2, roundNo: 1 });
+
+    // 2·3회차는 20자리씩 비어 있지만 넘기지 않는다.
+    expect(second.status).toBe('waitlisted');
+    expect(second.waitingForRoundNo).toBe(1);
   });
 
   it('취소된 참가번호는 재사용되지 않는다', async () => {
@@ -212,7 +227,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     await apply({ index: 7, birthdate: '2001-05-14' });
 
     const result = await services.lookupAssignment({
-      birthdate: '2001-05-14',
+      email: 'member7@example.com',
       phoneLast4: String(20_000_007).slice(-4),
     });
 
@@ -225,7 +240,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     await apply({ index: 8, birthdate: '2001-05-14' });
 
     await expect(
-      services.lookupAssignment({ birthdate: '2001-05-14', phoneLast4: '0000' }),
+      services.lookupAssignment({ email: 'member8@example.com', phoneLast4: '0000' }),
     ).rejects.toThrow(/찾을 수 없|없어요/);
   });
 
@@ -242,7 +257,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
   it('마감 임박 기준을 바꾸면 참가자에게 보이는 상태가 바뀐다', async () => {
     await pool.query('update round_capacity set capacity = 10');
     for (let index = 1; index <= 5; index += 1) {
-      await apply({ index, preferences: [1, 2, 3] });
+      await apply({ index, roundNo: 1 });
     }
 
     const before = await services.availability.getRoundAvailabilities(pool, 'F');

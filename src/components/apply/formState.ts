@@ -8,8 +8,8 @@ export interface ApplyFormState {
   gender: Gender | null;
   phone: string;
   email: string;
-  /** 1순위 → 3순위 순서로 담긴 회차 번호 */
-  preferences: number[];
+  /** 선착순이므로 회차는 하나만 고른다. 아직 고르지 않았으면 null. */
+  roundNo: number | null;
 }
 
 export const EMPTY_FORM: ApplyFormState = {
@@ -19,7 +19,7 @@ export const EMPTY_FORM: ApplyFormState = {
   gender: null,
   phone: '',
   email: '',
-  preferences: [],
+  roundNo: null,
 };
 
 /** 불변 업데이트 — 기존 상태를 바꾸지 않고 새 객체를 만든다. */
@@ -28,16 +28,6 @@ export const updateForm = <K extends keyof ApplyFormState>(
   key: K,
   value: ApplyFormState[K],
 ): ApplyFormState => ({ ...form, [key]: value });
-
-/**
- * 순위 토글.
- * 이미 선택된 회차를 다시 누르면 목록에서 빼고, 아니면 뒤에 붙인다.
- * 배열을 직접 수정하지 않고 새 배열을 반환한다.
- */
-export const togglePreference = (preferences: number[], roundNo: number): number[] =>
-  preferences.includes(roundNo)
-    ? preferences.filter((value) => value !== roundNo)
-    : [...preferences, roundNo];
 
 const basicInfoSchema = applicationSchema.pick({
   name: true,
@@ -69,13 +59,9 @@ export const validateBasicInfo = (form: ApplyFormState): FieldErrors => {
   return result.success ? {} : toFieldErrors(result.error.issues);
 };
 
-/** 2단계 검증 — 모든 회차를 순서대로 골랐는지 확인한다. */
-export const validatePreferences = (form: ApplyFormState, roundCount: number): FieldErrors => {
-  if (form.preferences.length < roundCount) {
-    return { preferences: `희망 순위를 ${roundCount}개 모두 선택해 주세요.` };
-  }
-  return {};
-};
+/** 2단계 검증 — 회차를 하나 골랐는지 확인한다. */
+export const validateRoundSelection = (form: ApplyFormState): FieldErrors =>
+  form.roundNo === null ? { roundNo: '회차를 선택해 주세요.' } : {};
 
 /** 서버로 보낼 형태로 정규화한다. */
 export const toApplicationPayload = (form: ApplyFormState) => applicationSchema.parse(form);

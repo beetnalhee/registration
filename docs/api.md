@@ -93,7 +93,7 @@
   "gender": "F",
   "phone": "010-1234-8241",
   "email": "heeju@example.com",
-  "preferences": [2, 1, 3]
+  "roundNo": 2
 }
 ```
 
@@ -105,7 +105,7 @@
 | `gender` | `M` \| `F` |
 | `phone` | 한국 휴대폰. 하이픈·공백 허용 (서버에서 숫자만 남김) |
 | `email` | 이메일 형식, 254자 이내 (소문자로 정규화) |
-| `preferences` | 회차 번호 3개, 중복 불가, 1순위부터 순서대로 |
+| `roundNo` | 참여할 회차 번호 1개 (선착순). 마감된 회차를 고르면 대기자가 된다 |
 
 **201 배정됨**
 
@@ -140,10 +140,10 @@
 
 ## `POST /api/lookup`
 
-본인 조회. 요청 제한: **분당 10회 / IP**
+본인 조회. 키는 이메일 + 전화번호 뒤 4자리. 요청 제한: **분당 10회 / IP**
 
 ```json
-{ "birthdate": "2001-05-14", "phoneLast4": "8241" }
+{ "email": "heeju@example.com", "phoneLast4": "8241" }
 ```
 
 ```json
@@ -159,7 +159,27 @@
 }
 ```
 
-찾지 못하면 `404 NOT_FOUND`. 생년월일이 맞는지 / 번호가 맞는지 구분해 알려주지 않습니다.
+찾지 못하면 `404 NOT_FOUND`. 이메일이 맞는지 / 번호가 맞는지 구분해 알려주지 않습니다.
+
+## `POST /api/participants/cancel`
+
+본인 취소. 조회와 **같은 자격증명**을 요구한다. 요청 제한: **분당 3회 / IP**
+
+```json
+{ "email": "heeju@example.com", "phoneLast4": "8241" }
+```
+
+```json
+{ "nickname": "희주" }
+```
+
+- 접수 중(`is_open = true`)일 때만 동작한다. 마감 후에는 `409 EVENT_CLOSED` 로 운영진 문의를 안내한다
+- 좌석이 즉시 반납되고 취소 안내 메일이 발송된다
+- **되돌릴 수 없다.** 다시 참여하려면 새로 신청해야 하고, 그때 자리가 없으면 대기자가 된다
+- 응답에 닉네임만 담는다 (나이·기본그룹·Bridge Zone 등 내부 정보 비노출)
+
+> 자격증명이 조회와 동일하므로, 남의 이메일과 번호 뒤 4자리를 아는 사람은
+> 그 사람 신청을 취소할 수 있다. 요청 제한과 화면의 2단계 확인으로 완화한다.
 
 ---
 
@@ -246,7 +266,7 @@
       "gender": "F",
       "phone": "01012348241",
       "email": "heeju@example.com",
-      "preferences": [2, 1, 3],
+      "preferredRoundNo": 2,
       "status": "assigned",
       "groupCode": "SUMMER",
       "roundNo": 2,

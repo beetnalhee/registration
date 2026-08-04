@@ -18,7 +18,8 @@ export interface ParticipantRecord {
   defaultGroupCode: GroupCode;
   isBridgeZone: boolean;
 
-  preferences: number[];
+  /** 참가자가 고른 회차 (선착순이므로 하나뿐) */
+  preferredRoundNo: number;
 
   status: ParticipantStatus;
   assignedRoundId: string | null;
@@ -45,9 +46,7 @@ interface ParticipantRow {
   age_at_event: number;
   default_group_code: GroupCode;
   is_bridge_zone: boolean;
-  pref_1: number;
-  pref_2: number;
-  pref_3: number;
+  preferred_round_no: number;
   status: ParticipantStatus;
   assigned_round_id: string | null;
   assigned_round_no: number | null;
@@ -65,7 +64,7 @@ const SELECT_PARTICIPANT = `
          to_char(p.birthdate, 'YYYY-MM-DD') as birthdate,
          p.gender, p.phone_digits, p.phone_last4, p.email,
          p.age_at_event, p.default_group_code, p.is_bridge_zone,
-         p.pref_1, p.pref_2, p.pref_3,
+         p.preferred_round_no,
          p.status, p.assigned_round_id, r.round_no as assigned_round_no,
          p.assigned_group_code, p.sequence_no, p.participant_code,
          p.waitlisted_at, p.cancelled_at, p.checked_in_at, p.created_at
@@ -84,7 +83,7 @@ const toRecord = (row: ParticipantRow): ParticipantRecord => ({
   ageAtEvent: row.age_at_event,
   defaultGroupCode: row.default_group_code,
   isBridgeZone: row.is_bridge_zone,
-  preferences: [row.pref_1, row.pref_2, row.pref_3],
+  preferredRoundNo: row.preferred_round_no,
   status: row.status,
   assignedRoundId: row.assigned_round_id,
   assignedRoundNo: row.assigned_round_no,
@@ -107,7 +106,7 @@ export interface InsertParticipantParams {
   ageAtEvent: number;
   defaultGroupCode: GroupCode;
   isBridgeZone: boolean;
-  preferences: number[];
+  preferredRoundNo: number;
   assignment:
     | {
         status: 'assigned';
@@ -129,15 +128,15 @@ export const insertParticipant = async (
     `insert into participants
        (name, nickname, birthdate, gender, phone, email,
         age_at_event, default_group_code, is_bridge_zone,
-        pref_1, pref_2, pref_3,
+        preferred_round_no,
         status, assigned_round_id, assigned_group_code, sequence_no, participant_code,
         waitlisted_at)
      values ($1, $2, $3, $4, $5, $6,
              $7, $8, $9,
-             $10, $11, $12,
-             $13::participant_status, $14, $15, $16, $17,
+             $10,
+             $11::participant_status, $12, $13, $14, $15,
              -- 대기자만 대기 시각을 기록한다(승격 순서의 기준이 된다).
-             case when $13::participant_status = 'waitlisted' then now() else null end)
+             case when $11::participant_status = 'waitlisted' then now() else null end)
      returning id`,
     [
       params.name,
@@ -149,9 +148,7 @@ export const insertParticipant = async (
       params.ageAtEvent,
       params.defaultGroupCode,
       params.isBridgeZone,
-      params.preferences[0],
-      params.preferences[1],
-      params.preferences[2],
+      params.preferredRoundNo,
       params.assignment.status,
       assigned?.roundId ?? null,
       assigned?.groupCode ?? null,
@@ -181,18 +178,23 @@ export const findParticipantById = async (
   return row ? toRecord(row) : null;
 };
 
-/** 조회 페이지 키: 생년월일 + 전화번호 뒤 4자리 (취소 건은 제외) */
+/**
+ * 조회·본인취소 키: 이메일 + 전화번호 뒤 4자리 (취소 건은 제외)
+ *
+ * 이메일은 participants_active_email_uniq 로 활성 신청 중 유일하므로
+ * 이 조합은 항상 한 명만 가리킨다.
+ */
 export const findParticipantByLookupKey = async (
   client: Queryable,
-  params: { birthdate: string; phoneLast4: string },
+  params: { email: string; phoneLast4: string },
 ): Promise<ParticipantRecord | null> => {
   const { rows } = await client.query<ParticipantRow>(
     `${SELECT_PARTICIPANT}
-      where p.birthdate = $1
+      where lower(p.email) = lower($1)
         and p.phone_last4 = $2
         and p.status <> 'cancelled'
       limit 1`,
-    [params.birthdate, params.phoneLast4],
+    [params.email, params.phoneLast4],
   );
 
   const row = rows[0];

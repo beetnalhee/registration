@@ -28,6 +28,8 @@ export const toAssignmentResultDto = (
     timeLabel: extra.timeLabel,
     participantCode: participant.participantCode,
     waitlistPosition: extra.waitlistPosition,
+    waitingForRoundNo:
+      participant.status === 'waitlisted' ? participant.preferredRoundNo : null,
   };
 };
 
@@ -52,7 +54,7 @@ export const toAdminParticipantDto = (
   gender: participant.gender,
   phone: participant.phone,
   email: participant.email,
-  preferences: participant.preferences,
+  preferredRoundNo: participant.preferredRoundNo,
   status: participant.status,
   groupCode: participant.assignedGroupCode,
   roundNo: participant.assignedRoundNo,

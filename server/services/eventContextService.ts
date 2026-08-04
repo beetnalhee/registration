@@ -45,14 +45,11 @@ export const loadAssignmentContext = async (
 export const findRoundByNo = (rounds: RoundRecord[], roundNo: number): RoundRecord | undefined =>
   rounds.find((round) => round.roundNo === roundNo);
 
-/** 희망 회차가 실제로 존재하는 활성 회차인지 검증한다. */
-export const assertPreferencesExist = (rounds: RoundRecord[], preferences: number[]): void => {
-  const available = new Set(rounds.map((round) => round.roundNo));
-  const unknown = preferences.filter((roundNo) => !available.has(roundNo));
-
-  if (unknown.length > 0) {
-    throw badRequest('선택할 수 없는 회차가 포함되어 있어요. 화면을 새로 고침한 뒤 다시 시도해 주세요.', {
-      preferences: '회차 정보가 변경되었어요.',
+/** 고른 회차가 실제로 존재하는 활성 회차인지 검증한다. */
+export const assertRoundExists = (rounds: RoundRecord[], roundNo: number): void => {
+  if (!rounds.some((round) => round.roundNo === roundNo)) {
+    throw badRequest('선택할 수 없는 회차예요. 화면을 새로 고침한 뒤 다시 시도해 주세요.', {
+      roundNo: '회차 정보가 변경되었어요.',
     });
   }
 };

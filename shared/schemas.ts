@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GENDERS, GROUP_CODES, PREFERENCE_COUNT } from './constants.js';
+import { GENDERS, GROUP_CODES } from './constants.js';
 
 /** 하이픈·공백·괄호를 제거하고 숫자만 남긴다. */
 export const normalizePhone = (raw: string): string => raw.replace(/\D/g, '');
@@ -36,12 +36,25 @@ export const genderSchema = z.enum(GENDERS, {
 
 export const groupCodeSchema = z.enum(GROUP_CODES);
 
-export const preferencesSchema = z
-  .array(z.number({ invalid_type_error: '희망 회차를 선택해 주세요.' }).int().positive())
-  .length(PREFERENCE_COUNT, `희망 회차를 ${PREFERENCE_COUNT}순위까지 모두 선택해 주세요.`)
-  .refine((values) => new Set(values).size === values.length, {
-    message: '희망 회차는 서로 다르게 선택해 주세요.',
-  });
+/** 선착순이므로 회차는 하나만 고른다. */
+export const roundNoSchema = z
+  .number({
+    required_error: '회차를 선택해 주세요.',
+    invalid_type_error: '회차를 선택해 주세요.',
+  })
+  .int('회차를 선택해 주세요.')
+  .positive('회차를 선택해 주세요.');
+
+const emailSchema = z
+  .string({ required_error: '이메일을 입력해 주세요.' })
+  .transform((value) => value.trim().toLowerCase())
+  .refine((value) => z.string().email().safeParse(value).success, '이메일 형식을 확인해 주세요.')
+  .refine((value) => value.length <= 254, '이메일이 너무 깁니다.');
+
+const phoneLast4Schema = z
+  .string({ required_error: '전화번호 뒤 4자리를 입력해 주세요.' })
+  .transform(normalizePhone)
+  .refine((value) => /^\d{4}$/.test(value), '전화번호 뒤 4자리를 숫자로 입력해 주세요.');
 
 /** 신청 폼 — 참가자 입력의 유일한 진입점 */
 export const applicationSchema = z.object({
@@ -50,26 +63,29 @@ export const applicationSchema = z.object({
   birthdate: birthdateSchema,
   gender: genderSchema,
   phone: phoneSchema,
-  email: z
-    .string({ required_error: '이메일을 입력해 주세요.' })
-    .transform((value) => value.trim().toLowerCase())
-    .refine((value) => z.string().email().safeParse(value).success, '이메일 형식을 확인해 주세요.')
-    .refine((value) => value.length <= 254, '이메일이 너무 깁니다.'),
-  preferences: preferencesSchema,
+  email: emailSchema,
+  roundNo: roundNoSchema,
 });
 
 export type ApplicationInput = z.infer<typeof applicationSchema>;
 
-/** 본인 조회 — 생년월일 + 전화번호 뒤 4자리 */
+/**
+ * 본인 조회 — 이메일 + 전화번호 뒤 4자리.
+ *
+ * 이 조합은 조회뿐 아니라 본인 취소의 자격증명도 된다.
+ * 생년월일은 지인이 알기 쉬워 취소 권한을 주기에 부적절하므로 쓰지 않는다.
+ */
 export const lookupSchema = z.object({
-  birthdate: birthdateSchema,
-  phoneLast4: z
-    .string({ required_error: '전화번호 뒤 4자리를 입력해 주세요.' })
-    .transform(normalizePhone)
-    .refine((value) => /^\d{4}$/.test(value), '전화번호 뒤 4자리를 숫자로 입력해 주세요.'),
+  email: emailSchema,
+  phoneLast4: phoneLast4Schema,
 });
 
 export type LookupInput = z.infer<typeof lookupSchema>;
+
+/** 본인 취소 — 조회와 같은 자격증명을 요구한다. */
+export const selfCancelSchema = lookupSchema;
+
+export type SelfCancelInput = z.infer<typeof selfCancelSchema>;
 
 /** 회차 상태 조회 — 성별만 받는다(성별에 따라 정원이 분리되어 있으므로). */
 export const roundAvailabilityQuerySchema = z.object({

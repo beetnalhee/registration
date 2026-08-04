@@ -254,10 +254,10 @@ export const promoteParticipant = async (params: PromoteParams): Promise<AdminPa
       params.roundNo !== undefined
         ? [params.roundNo]
         : [
-            ...participant.preferences,
+            participant.preferredRoundNo,
             ...context.rounds
               .map((round) => round.roundNo)
-              .filter((roundNo) => !participant.preferences.includes(roundNo)),
+              .filter((roundNo) => roundNo !== participant.preferredRoundNo),
           ];
 
     const targetRound = candidateRoundNos

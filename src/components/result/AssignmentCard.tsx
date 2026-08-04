@@ -38,7 +38,9 @@ export const AssignmentCard = ({ result }: { result: AssignmentResultDto }) => {
         </div>
         <h2 className="mt-3 font-display text-[21px] font-extrabold tracking-[-0.02em] text-slate-50">대기 명단에 올랐어요</h2>
         <p className="mt-3 text-[14.5px] leading-relaxed text-slate-400">
-          희망하신 회차가 모두 마감되었어요.
+          {result.waitingForRoundNo !== null
+            ? `${result.waitingForRoundNo}회차가 마감되어 대기 명단에 올랐어요.`
+            : '선택하신 회차가 마감되었어요.'}
           <br />
           자리가 생기면 순서대로 안내드릴게요.
         </p>

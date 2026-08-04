@@ -46,8 +46,8 @@ export interface BalancePolicy {
 export interface AssignmentRequest {
   gender: Gender;
   age: number;
-  /** 1순위 → 3순위 순서로 정렬된 회차 번호 */
-  preferences: number[];
+  /** 참가자가 고른 회차. 선착순이므로 대체 순위가 없다. */
+  roundNo: number;
 }
 
 export interface AssignmentContext {
@@ -65,12 +65,11 @@ export type AssignmentDecision =
       groupCode: GroupCode;
       /** 기본 그룹이 아닌 곳으로 옮겨졌는지 (내부 기록용) */
       movedFromDefaultGroup: boolean;
-      /** 몇 순위 희망이 반영되었는지 (1-based) */
-      matchedPreferenceRank: number;
     }
   | {
       outcome: 'waitlisted';
-      reason: 'all_rounds_full';
+      /** 고른 회차가 마감이었다. 선착순이므로 다른 회차로 넘기지 않는다. */
+      reason: 'round_full';
     };
 
 export interface AvailabilityInput {

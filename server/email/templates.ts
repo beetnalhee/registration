@@ -138,7 +138,7 @@ export const buildWaitlistMail = (to: string, data: WaitlistMailData): MailMessa
   const body = `
     <p style="margin:0 0 20px;">
       <strong style="color:#FFEFC7;">${escapeHtml(data.nickname)}</strong>님, 신청해 주셔서 고맙습니다.<br />
-      희망하신 회차가 모두 마감되어 대기자로 등록되었어요.
+      선택하신 회차가 마감되어 대기자로 등록되었어요.
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,179,193,0.2);
@@ -151,7 +151,7 @@ export const buildWaitlistMail = (to: string, data: WaitlistMailData): MailMessa
     ${button(data.lookupUrl, '내 상태 확인하기')}`;
 
   const text = [
-    `${data.nickname}님, 희망하신 회차가 모두 마감되어 대기자로 등록되었습니다.`,
+    `${data.nickname}님, 선택하신 회차가 마감되어 대기자로 등록되었습니다.`,
     data.waitlistPosition === null ? '' : `현재 대기 ${data.waitlistPosition}번입니다.`,
     '자리가 생기면 순서대로 안내드립니다.',
     '',

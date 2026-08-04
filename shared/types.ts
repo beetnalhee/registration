@@ -61,6 +61,12 @@ export interface AssignmentResultDto {
   participantCode: string | null;
   /** 대기 순번 (대기자만) */
   waitlistPosition: number | null;
+  /** 대기자가 기다리는 회차. 선착순이라 고른 회차 하나만 기다린다. */
+  waitingForRoundNo: number | null;
+}
+
+export interface SelfCancelResultDto {
+  nickname: string;
 }
 
 export interface LookupResultDto extends AssignmentResultDto {
@@ -124,7 +130,8 @@ export interface AdminParticipantDto {
   gender: Gender;
   phone: string;
   email: string;
-  preferences: number[];
+  /** 참가자가 고른 회차 (선착순이므로 하나뿐) */
+  preferredRoundNo: number;
   status: ParticipantStatus;
   groupCode: GroupCode | null;
   roundNo: number | null;

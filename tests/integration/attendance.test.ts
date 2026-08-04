@@ -61,7 +61,7 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
     );
   });
 
-  const apply = (index: number, overrides: { preferences?: number[] } = {}) =>
+  const apply = (index: number, overrides: { roundNo?: number } = {}) =>
     services.submitApplication({
       name: `참가자${index}`,
       nickname: `닉${index}`,
@@ -69,7 +69,7 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
       gender: 'F',
       phone: `010${String(30_000_000 + index).padStart(8, '0')}`,
       email: `guest${index}@example.com`,
-      preferences: overrides.preferences ?? [1, 2, 3],
+      roundNo: overrides.roundNo ?? 1,
     });
 
   const idOf = async (index: number): Promise<string> => {
@@ -191,9 +191,9 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
   });
 
   it('현황판이 회차별 출석 수를 집계한다', async () => {
-    await apply(1, { preferences: [1, 2, 3] });
-    await apply(2, { preferences: [1, 2, 3] });
-    await apply(3, { preferences: [2, 1, 3] });
+    await apply(1, { roundNo: 1 });
+    await apply(2, { roundNo: 1 });
+    await apply(3, { roundNo: 2 });
 
     await services.attendance.checkInParticipant({
       adminEmail: ADMIN_EMAIL,

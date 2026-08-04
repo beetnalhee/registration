@@ -141,12 +141,15 @@ export class IneligibleAgeError extends Error {
 /**
  * 배정 결정. 순수 함수이므로 DB·시간·난수에 의존하지 않는다.
  *
- * 알고리즘
+ * 알고리즘 (선착순)
  *   1) 나이로 기본 그룹을 정한다
- *   2) 희망 회차를 1순위부터 확인한다 — 회차 선택이 그룹 선택보다 우선한다
+ *   2) 고른 회차의 (회차, 성별) 정원을 확인한다
+ *      마감이면 다른 회차로 넘기지 않고 그 회차의 대기자가 된다
+ *   3) 자리가 있으면 그 회차 안에서 그룹을 고른다
  *      (하드 정원은 (회차, 성별) 단위이므로 그룹은 회차 가용성에 영향을 주지 않는다)
- *   3) 자리가 있는 첫 회차에서 그룹을 고른다
- *   4) 세 회차 모두 마감이면 대기자
+ *
+ * 대체 순위를 두지 않는 이유: 본인 취소로 자리가 열렸을 때
+ * 그 회차를 기다리는 사람이 누구인지 명확해야 승격 판단이 단순해진다.
  *
  * 이 함수는 상태를 바꾸지 않는다. 실제 카운터 증가와 정원 재확인은
  * 호출자(AssignmentService)가 트랜잭션 안에서 수행한다.
@@ -160,29 +163,22 @@ export const decideAssignment = (
     throw new IneligibleAgeError(request.age);
   }
 
-  const eligibleForBothGroups = isBridgeZone(request.age, context.agePolicy);
-
-  for (const [index, roundNo] of request.preferences.entries()) {
-    if (!hasRoomInRound(context.capacities, roundNo, request.gender)) {
-      continue;
-    }
-
-    const groupCode = chooseGroup({
-      roundNo,
-      gender: request.gender,
-      defaultGroup,
-      eligibleForBothGroups,
-      context,
-    });
-
-    return {
-      outcome: 'assigned',
-      roundNo,
-      groupCode,
-      movedFromDefaultGroup: groupCode !== defaultGroup,
-      matchedPreferenceRank: index + 1,
-    };
+  if (!hasRoomInRound(context.capacities, request.roundNo, request.gender)) {
+    return { outcome: 'waitlisted', reason: 'round_full' };
   }
 
-  return { outcome: 'waitlisted', reason: 'all_rounds_full' };
+  const groupCode = chooseGroup({
+    roundNo: request.roundNo,
+    gender: request.gender,
+    defaultGroup,
+    eligibleForBothGroups: isBridgeZone(request.age, context.agePolicy),
+    context,
+  });
+
+  return {
+    outcome: 'assigned',
+    roundNo: request.roundNo,
+    groupCode,
+    movedFromDefaultGroup: groupCode !== defaultGroup,
+  };
 };

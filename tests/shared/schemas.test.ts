@@ -13,7 +13,7 @@ const validApplication = {
   gender: 'F',
   phone: '010-1234-8241',
   email: 'Heeju@Example.com',
-  preferences: [2, 1, 3],
+  roundNo: 2,
 };
 
 describe('normalizePhone', () => {
@@ -76,35 +76,45 @@ describe('applicationSchema', () => {
     expect(applicationSchema.safeParse({ ...validApplication, gender: 'X' }).success).toBe(false);
   });
 
-  it('희망 회차가 3개가 아니면 거절한다', () => {
-    expect(applicationSchema.safeParse({ ...validApplication, preferences: [1, 2] }).success).toBe(
-      false,
-    );
+  it('회차를 고르지 않으면 거절한다', () => {
+    expect(applicationSchema.safeParse({ ...validApplication, roundNo: null }).success).toBe(false);
+    const { roundNo: _omitted, ...withoutRound } = validApplication;
+    expect(applicationSchema.safeParse(withoutRound).success).toBe(false);
   });
 
-  it('희망 회차가 중복되면 거절한다', () => {
-    expect(applicationSchema.safeParse({ ...validApplication, preferences: [1, 1, 2] }).success).toBe(
-      false,
-    );
+  it('회차 번호가 0 이하이면 거절한다', () => {
+    expect(applicationSchema.safeParse({ ...validApplication, roundNo: 0 }).success).toBe(false);
+    expect(applicationSchema.safeParse({ ...validApplication, roundNo: -1 }).success).toBe(false);
   });
 });
 
 describe('lookupSchema', () => {
-  it('생년월일과 전화 뒤 4자리를 받는다', () => {
-    const result = lookupSchema.safeParse({ birthdate: '2000-05-14', phoneLast4: '8241' });
+  it('이메일과 전화 뒤 4자리를 받는다', () => {
+    const result = lookupSchema.safeParse({ email: 'Heeju@Example.com', phoneLast4: '8241' });
+
     expect(result.success).toBe(true);
+    // 이메일은 소문자로 정규화된다 (저장된 값과 대조되어야 한다)
+    if (result.success) expect(result.data.email).toBe('heeju@example.com');
+  });
+
+  it('생년월일은 더 이상 조회 키가 아니다', () => {
+    // 조회 화면에서 취소까지 할 수 있으므로 지인이 알기 쉬운 값을 쓰지 않는다.
+    const result = lookupSchema.safeParse({ birthdate: '2000-05-14', phoneLast4: '8241' });
+    expect(result.success).toBe(false);
   });
 
   it('4자리가 아니면 거절한다', () => {
-    expect(lookupSchema.safeParse({ birthdate: '2000-05-14', phoneLast4: '824' }).success).toBe(false);
-    expect(lookupSchema.safeParse({ birthdate: '2000-05-14', phoneLast4: '82415' }).success).toBe(
-      false,
-    );
+    expect(lookupSchema.safeParse({ email: 'a@b.com', phoneLast4: '824' }).success).toBe(false);
+    expect(lookupSchema.safeParse({ email: 'a@b.com', phoneLast4: '82415' }).success).toBe(false);
   });
 
   it('숫자가 아닌 문자는 제거한 뒤 검사한다', () => {
-    const result = lookupSchema.safeParse({ birthdate: '2000-05-14', phoneLast4: '-8241 ' });
+    const result = lookupSchema.safeParse({ email: 'a@b.com', phoneLast4: '-8241 ' });
     expect(result.success && result.data.phoneLast4).toBe('8241');
+  });
+
+  it('이메일 형식이 아니면 거절한다', () => {
+    expect(lookupSchema.safeParse({ email: 'not-an-email', phoneLast4: '8241' }).success).toBe(false);
   });
 });
 

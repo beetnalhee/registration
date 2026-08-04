@@ -17,7 +17,7 @@ import {
 import { claimSequence, reserveSeat } from '../repositories/slotRepository.js';
 import { toAssignmentResultDto } from './dto.js';
 import {
-  assertPreferencesExist,
+  assertRoundExists,
   findRoundByNo,
   loadAssignmentContext,
   loadEventContext,
@@ -84,7 +84,7 @@ export const submitApplication = async (input: ApplicationInput): Promise<Assign
     });
   }
 
-  assertPreferencesExist(context.rounds, input.preferences);
+  assertRoundExists(context.rounds, input.roundNo);
 
   const outcome = await withTransaction<AssignmentOutcome>(async (client) => {
     // ★ 여기서부터 커밋까지 다른 배정 트랜잭션은 진입할 수 없다.
@@ -92,7 +92,7 @@ export const submitApplication = async (input: ApplicationInput): Promise<Assign
 
     const assignmentContext = await loadAssignmentContext(client, context);
     const decision = decideAssignment(
-      { gender: input.gender, age, preferences: input.preferences },
+      { gender: input.gender, age, roundNo: input.roundNo },
       assignmentContext,
     );
 
@@ -106,7 +106,7 @@ export const submitApplication = async (input: ApplicationInput): Promise<Assign
       ageAtEvent: age,
       defaultGroupCode,
       isBridgeZone: isBridgeZone(age, context.settings),
-      preferences: input.preferences,
+      preferredRoundNo: input.roundNo,
     };
 
     if (decision.outcome === 'waitlisted') {

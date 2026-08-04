@@ -18,6 +18,7 @@ export const BALANCE_POLICY: BalancePolicy = DEFAULT_BALANCE_POLICY;
 export const RATE_LIMITS = {
   application: { windowMs: 60_000, max: 5 },
   lookup: { windowMs: 60_000, max: 10 },
+  selfCancel: { windowMs: 60_000, max: 3 },
   adminLogin: { windowMs: 60_000, max: 10 },
 } as const;
 

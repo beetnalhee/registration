@@ -37,17 +37,18 @@ export const ConfirmStep = ({
       </div>
 
       <h2 className="mb-3 mt-6 text-[13px] font-medium tracking-[0.1em] text-slate-400">
-        희망 회차
+        선택한 회차
       </h2>
-      <ol className="glass space-y-0 px-5 py-2">
-        {form.preferences.map((roundNo, index) => (
-          <Row
-            key={roundNo}
-            label={`${index + 1}순위`}
-            value={`${formatRoundLabel(roundNo)} · ${timeLabelOf(roundNo)}`}
-          />
-        ))}
-      </ol>
+      <div className="glass px-5 py-2">
+        <Row
+          label="회차"
+          value={
+            form.roundNo === null
+              ? '-'
+              : `${formatRoundLabel(form.roundNo)} · ${timeLabelOf(form.roundNo)}`
+          }
+        />
+      </div>
 
       <p className="mt-6 text-[13px] leading-relaxed text-slate-500">
         신청을 누르면 자리가 바로 배정되고, 결과를 화면과 이메일로 안내드려요.

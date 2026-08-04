@@ -115,61 +115,81 @@ const tallyOf = (
     (item) => item.roundNo === roundNo && item.groupCode === groupCode && item.gender === gender,
   )?.activeCount ?? -1;
 
-/** 나이를 순환시켜 Bridge Zone 안팎이 섞인 신청자 목록을 만든다. */
-const buildRequests = (count: number, gender: Gender, ages = [20, 24, 26, 30]): AssignmentRequest[] =>
+/** 나이를 순환시켜 Bridge Zone 안팎이 섞인 신청자 목록을 만든다. 모두 같은 회차를 고른다. */
+const buildRequests = (
+  count: number,
+  gender: Gender,
+  roundNo = 1,
+  ages = [20, 24, 26, 30],
+): AssignmentRequest[] =>
   Array.from({ length: count }, (_, index) => ({
     gender,
     age: ages[index % ages.length] as number,
-    preferences: [1, 2, 3],
+    roundNo,
   }));
 
-describe('정원 시뮬레이션', () => {
-  it('40명이 1순위로 몰려도 1회차는 정확히 20명에서 멈추고 나머지는 2회차로 간다', () => {
-    const result = simulate(buildRequests(40, 'M'));
+describe('정원 시뮬레이션 (선착순)', () => {
+  it('40명이 1회차를 고르면 20명만 배정되고 나머지는 대기자가 된다', () => {
+    const result = simulate(buildRequests(40, 'M', 1));
 
+    // ★ 예전에는 초과분이 2회차로 넘어갔지만, 선착순에서는 넘어가지 않는다.
     expect(filledOf(result, 1, 'M')).toBe(20);
-    expect(filledOf(result, 2, 'M')).toBe(20);
+    expect(filledOf(result, 2, 'M')).toBe(0);
     expect(filledOf(result, 3, 'M')).toBe(0);
-    expect(result.assigned).toBe(40);
-    expect(result.waitlisted).toBe(0);
+    expect(result.assigned).toBe(20);
+    expect(result.waitlisted).toBe(20);
   });
 
-  it('정원(60명)을 넘는 인원은 대기자가 되고 어느 회차도 20명을 넘지 않는다', () => {
-    const result = simulate(buildRequests(75, 'F'));
+  it('회차를 나눠 고르면 각 회차가 독립적으로 채워진다', () => {
+    const result = simulate([
+      ...buildRequests(25, 'F', 1),
+      ...buildRequests(10, 'F', 2),
+      ...buildRequests(5, 'F', 3),
+    ]);
+
+    expect(filledOf(result, 1, 'F')).toBe(20);
+    expect(filledOf(result, 2, 'F')).toBe(10);
+    expect(filledOf(result, 3, 'F')).toBe(5);
+    expect(result.assigned).toBe(35);
+    expect(result.waitlisted).toBe(5);
+  });
+
+  it('어떤 회차도 정원을 넘지 않는다', () => {
+    const result = simulate([
+      ...buildRequests(30, 'F', 1),
+      ...buildRequests(30, 'F', 2),
+      ...buildRequests(30, 'F', 3),
+    ]);
 
     for (const roundNo of ROUND_NOS) {
-      expect(filledOf(result, roundNo, 'F')).toBe(20);
-      expect(filledOf(result, roundNo, 'F')).toBeLessThanOrEqual(CAPACITY_PER_GENDER);
+      expect(filledOf(result, roundNo, 'F')).toBe(CAPACITY_PER_GENDER);
     }
-
     expect(result.assigned).toBe(60);
-    expect(result.waitlisted).toBe(15);
+    expect(result.waitlisted).toBe(30);
   });
 
   it('남녀 정원은 서로를 잠식하지 않는다', () => {
-    const requests = [...buildRequests(30, 'M'), ...buildRequests(30, 'F')];
-    const result = simulate(requests);
+    const result = simulate([...buildRequests(30, 'M', 1), ...buildRequests(30, 'F', 1)]);
 
     expect(filledOf(result, 1, 'M')).toBe(20);
     expect(filledOf(result, 1, 'F')).toBe(20);
-    expect(result.assigned).toBe(60);
+    expect(result.assigned).toBe(40);
+    expect(result.waitlisted).toBe(20);
   });
 
   it('정원을 2명으로 줄이면 초과분이 즉시 대기자가 된다', () => {
-    const result = simulate(buildRequests(10, 'M'), 2);
+    const result = simulate(buildRequests(10, 'M', 1), 2);
 
     expect(filledOf(result, 1, 'M')).toBe(2);
-    expect(filledOf(result, 2, 'M')).toBe(2);
-    expect(filledOf(result, 3, 'M')).toBe(2);
-    expect(result.assigned).toBe(6);
-    expect(result.waitlisted).toBe(4);
+    expect(result.assigned).toBe(2);
+    expect(result.waitlisted).toBe(8);
   });
 });
 
 describe('그룹 성비 보정', () => {
   it('남성이 먼저 몰려도 이후 여성 신청으로 그룹별 성비가 좁혀진다', () => {
-    // 남성 24명(1회차 20 + 2회차 4) → 이어서 여성 20명이 1회차로 들어온다.
-    const requests = [...buildRequests(24, 'M'), ...buildRequests(20, 'F')];
+    // 남성 20명이 1회차를 채운 뒤 여성 20명이 같은 회차로 들어온다.
+    const requests = [...buildRequests(20, 'M', 1), ...buildRequests(20, 'F', 1)];
     const result = simulate(requests);
 
     for (const groupCode of ['SUMMER', 'NIGHT'] as const) {
@@ -182,7 +202,7 @@ describe('그룹 성비 보정', () => {
   });
 
   it('그룹 인원 합계는 항상 회차 정원과 일치한다', () => {
-    const result = simulate(buildRequests(20, 'F'));
+    const result = simulate(buildRequests(20, 'F', 1));
 
     const summed =
       tallyOf(result, 1, 'SUMMER', 'F') + tallyOf(result, 1, 'NIGHT', 'F');

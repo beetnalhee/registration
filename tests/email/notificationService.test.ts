@@ -39,7 +39,7 @@ const participant: ParticipantRecord = {
   ageAtEvent: 25,
   defaultGroupCode: 'SUMMER',
   isBridgeZone: true,
-  preferences: [1, 2, 3],
+  preferredRoundNo: 2,
   status: 'assigned',
   assignedRoundId: '22222222-2222-4222-8222-222222222222',
   assignedRoundNo: 2,

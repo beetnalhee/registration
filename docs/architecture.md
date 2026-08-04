@@ -56,6 +56,7 @@ registration/
 │  ├─ services/                 유스케이스
 │  │  ├─ applicationService.ts  ★ 신청 접수 + 배정
 │  │  ├─ lookupService.ts
+│  │  ├─ selfCancelService.ts   본인 취소 (관리자 취소 경로를 재사용)
 │  │  ├─ availabilityService.ts
 │  │  ├─ authService.ts
 │  │  ├─ eventContextService.ts
@@ -86,7 +87,7 @@ registration/
 │  │     └─ securityHeaders.ts
 │  │
 │  └─ routes/
-│     ├─ publicRoutes.ts        참가자용
+│     ├─ publicRoutes.ts        참가자용 (신청·조회·본인취소)
 │     └─ adminRoutes.ts         관리자용
 │
 ├─ shared/                      프론트·백엔드 공용
@@ -107,7 +108,7 @@ registration/
 │  ├─ lib/                      API 클라이언트, 세션·결과 저장
 │  └─ styles/index.css
 │
-├─ supabase/migrations/         001_schema.sql, 002_seed.sql
+├─ supabase/migrations/         001~004 (스키마·시드·출석·선착순)
 ├─ tests/
 │  ├─ domain/                   단위 테스트
 │  ├─ shared/                   검증 스키마 테스트
@@ -144,9 +145,10 @@ participants
   신청 정보 : name, nickname, birthdate, gender, phone, email
   정규화    : phone_digits, phone_last4 (생성 컬럼)
   내부 정보 : age_at_event, default_group_code, is_bridge_zone   ← 비노출
-  희망      : pref_1, pref_2, pref_3
+  선택      : preferred_round_no  (선착순이므로 대체 순위 없음)
   결과      : status, assigned_round_id, assigned_group_code,
-              sequence_no, participant_code, waitlisted_at, cancelled_at
+              sequence_no, participant_code, waitlisted_at, cancelled_at,
+              checked_in_at
   │
   ├──< email_logs    발송 이력 (재발송 판단 근거)
   └──< audit_logs    관리자 변경 이력 (before/after jsonb)
@@ -161,7 +163,6 @@ admins
 |---|---|
 | `participants_active_email_uniq` | 이메일 중복 신청 차단 (취소 건 제외 → 재신청 허용) |
 | `participants_active_phone_uniq` | 연락처 중복 신청 차단 |
-| `participants_lookup_key_uniq` | `(생년월일, 전화 뒤 4자리)` 가 항상 1명만 가리키도록 보장 |
 | `participants.participant_code` | 참가번호 중복 차단 |
 
 ### 정원 모델을 두 표로 나눈 이유
@@ -195,6 +196,9 @@ admins
 - 토큰은 `sessionStorage` 에만 두어 탭을 닫으면 사라집니다(공용 PC 대비).
 - 프론트엔드의 라우트 가드는 편의 장치일 뿐이고, 실제 차단은 서버가 합니다.
 - 참가자는 인증이 없습니다. 대신 조회 API 에 IP 기준 요청 제한(분당 10회)을 걸고 이름을 마스킹합니다.
+- 본인 조회·취소 자격증명은 **이메일 + 전화번호 뒤 4자리**입니다. 취소는 파괴적이므로
+  분당 3회로 더 촘촘히 제한합니다. 생년월일을 쓰지 않는 이유는 지인이 알기 쉬워
+  취소 권한을 주기에 부적절하기 때문입니다.
 
 ## 정보 차단 지점
 
@@ -229,10 +233,10 @@ notifyParticipant()   ← 트랜잭션 밖에서 호출 (메일 지연이 락을
 /                랜딩 — 히어로, 회차 상태(3상태만), 진행 안내
 /apply           신청
   step 1         이름·닉네임·생년월일·성별·연락처·이메일
-  step 2         회차 순위 선택 (성별 기준 상태 표시)
+  step 2         회차 1개 선택 (선착순, 성별 기준 상태 표시)
   step 3         입력 확인 → 제출
 /apply/complete  배정 결과 (그룹·회차·시간·참가번호) — sessionStorage 로 전달
-/lookup          생년월일 + 전화 뒤 4자리 → 본인 배정 조회
+/lookup          이메일 + 전화 뒤 4자리 → 본인 배정 조회 및 신청 취소
 /admin/login     운영진 로그인
 /admin           현황판 (15초 자동 갱신) + 행사 설정
 /admin/participants  검색·필터·상세·배정변경·취소·승격·CSV·이메일 재발송
