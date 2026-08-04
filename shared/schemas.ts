@@ -87,9 +87,16 @@ export const selfCancelSchema = lookupSchema;
 
 export type SelfCancelInput = z.infer<typeof selfCancelSchema>;
 
-/** 회차 상태 조회 — 성별만 받는다(성별에 따라 정원이 분리되어 있으므로). */
-export const roundAvailabilityQuerySchema = z.object({
+/**
+ * 회차 상태 조회.
+ *
+ * 정원이 (회차, 그룹, 성별) 단위이므로 정확한 상태를 알려면 그룹이 필요하고,
+ * 그룹은 나이로 정해진다. 그래서 성별과 생년월일을 함께 받는다.
+ * 둘 다 없으면 회차 전체를 합친 개괄 상태를 돌려준다(랜딩 화면).
+ */
+export const roundAvailabilityRequestSchema = z.object({
   gender: genderSchema.optional(),
+  birthdate: birthdateSchema.optional(),
 });
 
 export const adminLoginSchema = z.object({
@@ -99,7 +106,7 @@ export const adminLoginSchema = z.object({
 
 export const adminParticipantQuerySchema = z.object({
   q: z.string().trim().max(60).optional(),
-  status: z.enum(['assigned', 'waitlisted', 'cancelled']).optional(),
+  status: z.enum(['assigned', 'cancelled']).optional(),
   roundNo: z.coerce.number().int().positive().optional(),
   groupCode: groupCodeSchema.optional(),
   gender: genderSchema.optional(),
@@ -122,11 +129,6 @@ export const adminReassignSchema = z
   .refine((value) => value.roundNo !== undefined || value.groupCode !== undefined, {
     message: '변경할 회차 또는 그룹을 지정해 주세요.',
   });
-
-export const adminPromoteSchema = z.object({
-  roundNo: z.number().int().positive().optional(),
-  groupCode: groupCodeSchema.optional(),
-});
 
 export const adminSettingsSchema = z
   .object({

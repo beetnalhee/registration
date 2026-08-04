@@ -1,11 +1,8 @@
 import type { LookupInput } from '../../shared/schemas.js';
 import type { LookupResultDto } from '../../shared/types.js';
 import { getPool } from '../db/pool.js';
-import { notFound } from '../errors.js';
-import {
-  findParticipantByLookupKey,
-  findWaitlistPosition,
-} from '../repositories/participantRepository.js';
+import { internal, notFound } from '../errors.js';
+import { findParticipantByLookupKey } from '../repositories/participantRepository.js';
 import { findActiveRounds } from '../repositories/roundRepository.js';
 import { toLookupResultDto } from './dto.js';
 
@@ -30,11 +27,10 @@ export const lookupAssignment = async (input: LookupInput): Promise<LookupResult
   const rounds = await findActiveRounds(pool);
   const round = rounds.find((item) => item.roundNo === participant.assignedRoundNo);
 
-  const waitlistPosition =
-    participant.status === 'waitlisted' ? await findWaitlistPosition(pool, participant.id) : null;
+  if (!round) {
+    // 배정된 회차가 비활성화된 경우. 참가자가 스스로 해결할 수 없으므로 운영진 문의로 유도한다.
+    throw internal('회차 정보를 불러오지 못했어요. 운영진에게 문의해 주세요.');
+  }
 
-  return toLookupResultDto(participant, {
-    timeLabel: round?.timeLabel ?? null,
-    waitlistPosition,
-  });
+  return toLookupResultDto(participant, { timeLabel: round.timeLabel });
 };

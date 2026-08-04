@@ -19,7 +19,8 @@ export const LandingPage = () => {
   const navigate = useNavigate();
 
   const event = useAsync((signal) => fetchEventInfo(signal));
-  const availability = useAsync((signal) => fetchRoundAvailability(undefined, signal));
+  // 성별·생년월일 없이 부르면 회차 전체를 합친 개괄 상태가 온다.
+  const availability = useAsync((signal) => fetchRoundAvailability({}, signal));
 
   const availabilityOf = (roundNo: number) =>
     availability.data?.find((item) => item.roundNo === roundNo)?.availability ?? 'closed';
@@ -90,8 +91,8 @@ export const LandingPage = () => {
       <section className="glass mt-8 px-5 py-5">
         <h2 className="mb-3.5 text-[14px] font-semibold text-slate-100">이렇게 진행돼요</h2>
         <ul className="space-y-2.5">
-          <HighlightRow icon="📝">신청서를 작성하고 희망 회차를 3순위까지 고릅니다</HighlightRow>
-          <HighlightRow icon="⚡">신청하는 순간 자리가 자동으로 배정됩니다</HighlightRow>
+          <HighlightRow icon="📝">신청서를 작성하고 참여할 회차를 하나 고릅니다</HighlightRow>
+          <HighlightRow icon="⚡">선착순으로 자리가 즉시 배정됩니다</HighlightRow>
           <HighlightRow icon="💌">배정 결과는 화면과 이메일로 바로 알려드려요</HighlightRow>
         </ul>
       </section>

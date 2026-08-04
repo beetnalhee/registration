@@ -54,8 +54,7 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
     // 테스트 간 격리를 위해 함께 비운다.
     await pool.query('delete from audit_logs');
     await pool.query('delete from participants');
-    await pool.query('update round_capacity set filled_count = 0, capacity = 20');
-    await pool.query('update group_tally set active_count = 0, seq_counter = 0');
+    await pool.query('update round_slots set active_count = 0, seq_counter = 0, capacity = 10');
     await pool.query(
       `update event_settings set is_open = true, event_date = date '2026-08-15'`,
     );
@@ -65,7 +64,7 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
     services.submitApplication({
       name: `참가자${index}`,
       nickname: `닉${index}`,
-      birthdate: '2001-05-14',
+      birthdate: '2004-05-14',
       gender: 'F',
       phone: `010${String(30_000_000 + index).padStart(8, '0')}`,
       email: `guest${index}@example.com`,
@@ -132,22 +131,6 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
         participantId: await idOf(1),
       }),
     ).rejects.toThrow(/출석 처리되지 않은/);
-  });
-
-  it('대기자는 출석 처리할 수 없다', async () => {
-    await pool.query('update round_capacity set capacity = 1');
-    await apply(1);
-    await apply(2);
-    await apply(3);
-    const waiting = await apply(4);
-    expect(waiting.status).toBe('waitlisted');
-
-    await expect(
-      services.attendance.checkInParticipant({
-        adminEmail: ADMIN_EMAIL,
-        participantId: await idOf(4),
-      }),
-    ).rejects.toThrow(/대기자/);
   });
 
   it('취소된 사람은 출석 처리할 수 없다', async () => {

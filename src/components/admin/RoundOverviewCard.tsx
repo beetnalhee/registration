@@ -77,16 +77,17 @@ export const RoundOverviewCard = ({ round }: { round: RoundOverviewDto }) => (
     )}
 
     <div className="mt-4 border-t border-white/[0.07] pt-3.5">
-      <p className="mb-2 text-[11.5px] uppercase tracking-[0.14em] text-slate-500">그룹 구성</p>
+      <p className="mb-2 text-[11.5px] tracking-[0.1em] text-slate-500">그룹별 정원</p>
       <ul className="space-y-1.5">
         {round.groups.map((group) => {
-          const gap = Math.abs(group.male - group.female);
+          const gap = Math.abs(group.male.filled - group.female.filled);
 
           return (
             <li key={group.groupCode} className="flex items-center justify-between text-[13px]">
               <span className="font-medium text-slate-300">{group.groupCode}</span>
               <span className="tabular-nums text-slate-400">
-                남 {group.male} · 여 {group.female}
+                남 {group.male.filled}/{group.male.capacity} · 여 {group.female.filled}/
+                {group.female.capacity}
                 {gap >= 3 && (
                   <span className="ml-2 text-peach-soft" title="그룹 내 성비 차이가 큽니다">
                     ±{gap}

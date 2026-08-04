@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   applicationSchema,
   lookupSchema,
-  roundAvailabilityQuerySchema,
+  roundAvailabilityRequestSchema,
   selfCancelSchema,
 } from '../../shared/schemas.js';
 import { getPool } from '../db/pool.js';
@@ -33,11 +33,16 @@ publicRoutes.get(
   }),
 );
 
-publicRoutes.get(
+/**
+ * 회차 상태. 정원이 (회차, 그룹, 성별) 단위라 정확한 상태를 알려면
+ * 참가자의 그룹을 알아야 하고, 그룹은 나이로 정해진다.
+ * 생년월일이 URL 에 남지 않도록 GET 대신 POST 를 쓴다.
+ */
+publicRoutes.post(
   '/rounds/availability',
   asyncHandler(async (req, res) => {
-    const query = roundAvailabilityQuerySchema.parse(req.query);
-    ok(res, await getRoundAvailabilities(getPool(), query.gender));
+    const query = roundAvailabilityRequestSchema.parse(req.body ?? {});
+    ok(res, await getRoundAvailabilities(getPool(), query));
   }),
 );
 

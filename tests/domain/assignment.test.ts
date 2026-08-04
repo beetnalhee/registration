@@ -5,6 +5,7 @@ import {
   chooseGroup,
   decideAssignment,
   genderDeficit,
+  resolveCandidateGroups,
 } from '../../server/domain/assignment.js';
 import type {
   AgePolicy,
@@ -12,8 +13,7 @@ import type {
   Gender,
   GroupCode,
   GroupRule,
-  GroupTallyState,
-  RoundCapacityState,
+  SlotState,
 } from '../../server/domain/types.js';
 
 const GROUPS: GroupRule[] = [
@@ -24,28 +24,20 @@ const GROUPS: GroupRule[] = [
 const AGE_POLICY: AgePolicy = { minAge: 18, maxAge: 35, bridgeMinAge: 24, bridgeMaxAge: 27 };
 
 const ROUNDS = [1, 2, 3];
+const CAPACITY = 10;
 
-/** 모든 회차/성별 정원을 지정한 값으로 채운 상태를 만든다. */
-const capacities = (filled: Partial<Record<`${number}-${Gender}`, number>> = {}): RoundCapacityState[] =>
-  ROUNDS.flatMap((roundNo) =>
-    (['M', 'F'] as Gender[]).map((gender) => ({
-      roundNo,
-      gender,
-      capacity: 20,
-      filled: filled[`${roundNo}-${gender}`] ?? 0,
-    })),
-  );
+type SlotKey = `${number}-${GroupCode}-${Gender}`;
 
-const tallies = (
-  counts: Partial<Record<`${number}-${GroupCode}-${Gender}`, number>> = {},
-): GroupTallyState[] =>
+/** (회차, 그룹, 성별) 정원 10명. 지정한 조합만 채워진 상태를 만든다. */
+const slots = (filled: Partial<Record<SlotKey, number>> = {}): SlotState[] =>
   ROUNDS.flatMap((roundNo) =>
     (['SUMMER', 'NIGHT'] as GroupCode[]).flatMap((groupCode) =>
       (['M', 'F'] as Gender[]).map((gender) => ({
         roundNo,
         groupCode,
         gender,
-        activeCount: counts[`${roundNo}-${groupCode}-${gender}`] ?? 0,
+        capacity: CAPACITY,
+        filled: filled[`${roundNo}-${groupCode}-${gender}`] ?? 0,
       })),
     ),
   );
@@ -54,13 +46,29 @@ const context = (overrides: Partial<AssignmentContext> = {}): AssignmentContext 
   groups: GROUPS,
   agePolicy: AGE_POLICY,
   balancePolicy: DEFAULT_BALANCE_POLICY,
-  capacities: capacities(),
-  tallies: tallies(),
+  slots: slots(),
   ...overrides,
 });
 
-describe('decideAssignment — 선착순', () => {
-  it('고른 회차에 자리가 있으면 그 회차로 배정한다', () => {
+describe('resolveCandidateGroups', () => {
+  it('일반 참가자는 기본 그룹 하나뿐이다', () => {
+    expect(resolveCandidateGroups(20, GROUPS, AGE_POLICY)).toEqual(['SUMMER']);
+    expect(resolveCandidateGroups(30, GROUPS, AGE_POLICY)).toEqual(['NIGHT']);
+  });
+
+  it('Bridge Zone 은 기본 그룹을 앞에 두고 두 그룹 모두 후보다', () => {
+    expect(resolveCandidateGroups(25, GROUPS, AGE_POLICY)).toEqual(['SUMMER', 'NIGHT']);
+    expect(resolveCandidateGroups(26, GROUPS, AGE_POLICY)).toEqual(['NIGHT', 'SUMMER']);
+  });
+
+  it('참가 가능 연령이 아니면 후보가 없다', () => {
+    expect(resolveCandidateGroups(17, GROUPS, AGE_POLICY)).toEqual([]);
+    expect(resolveCandidateGroups(40, GROUPS, AGE_POLICY)).toEqual([]);
+  });
+});
+
+describe('decideAssignment — 선착순, 대기자 없음', () => {
+  it('자리가 있으면 고른 회차·기본 그룹으로 배정한다', () => {
     const result = decideAssignment({ gender: 'F', age: 22, roundNo: 2 }, context());
 
     expect(result).toEqual({
@@ -71,41 +79,49 @@ describe('decideAssignment — 선착순', () => {
     });
   });
 
-  it('고른 회차가 마감이면 다른 회차에 자리가 있어도 대기자가 된다', () => {
-    // ★ 선착순의 핵심 규칙. 예전에는 2·3순위로 내려갔지만 이제는 내려가지 않는다.
+  it('내 그룹·성별 자리가 차면 거절한다 (대기자로 만들지 않는다)', () => {
     const result = decideAssignment(
-      { gender: 'M', age: 22, roundNo: 1 },
-      context({ capacities: capacities({ '1-M': 20 }) }),
+      { gender: 'F', age: 22, roundNo: 1 },
+      context({ slots: slots({ '1-SUMMER-F': CAPACITY }) }),
     );
 
-    expect(result).toEqual({ outcome: 'waitlisted', reason: 'round_full' });
+    expect(result).toEqual({ outcome: 'rejected', reason: 'round_full' });
   });
 
-  it('다른 회차가 마감이어도 고른 회차가 비어 있으면 배정된다', () => {
+  it('다른 그룹이 차 있어도 내 그룹에 자리가 있으면 배정된다', () => {
+    // 정원이 그룹 단위이므로 NIGHT 가 꽉 차도 SUMMER 는 영향받지 않는다.
     const result = decideAssignment(
-      { gender: 'M', age: 30, roundNo: 3 },
-      context({ capacities: capacities({ '1-M': 20, '2-M': 20 }) }),
+      { gender: 'F', age: 22, roundNo: 1 },
+      context({ slots: slots({ '1-NIGHT-F': CAPACITY }) }),
     );
 
-    expect(result).toMatchObject({ outcome: 'assigned', roundNo: 3 });
+    expect(result).toMatchObject({ outcome: 'assigned', groupCode: 'SUMMER' });
   });
 
-  it('정원은 성별로 분리되어 있다 — 남성이 꽉 차도 여성은 배정된다', () => {
-    const state = context({ capacities: capacities({ '1-M': 20 }) });
+  it('같은 그룹의 반대 성별이 차 있어도 영향받지 않는다', () => {
+    const result = decideAssignment(
+      { gender: 'F', age: 22, roundNo: 1 },
+      context({ slots: slots({ '1-SUMMER-M': CAPACITY }) }),
+    );
 
-    expect(decideAssignment({ gender: 'M', age: 30, roundNo: 1 }, state)).toMatchObject({
-      outcome: 'waitlisted',
-    });
-    expect(decideAssignment({ gender: 'F', age: 30, roundNo: 1 }, state)).toMatchObject({
-      outcome: 'assigned',
-      roundNo: 1,
-    });
+    expect(result).toMatchObject({ outcome: 'assigned', groupCode: 'SUMMER' });
+  });
+
+  it('다른 회차가 비어 있어도 고른 회차가 차면 거절한다', () => {
+    const result = decideAssignment(
+      { gender: 'M', age: 30, roundNo: 1 },
+      context({ slots: slots({ '1-NIGHT-M': CAPACITY }) }),
+    );
+
+    expect(result).toEqual({ outcome: 'rejected', reason: 'round_full' });
   });
 
   it('존재하지 않는 회차를 받으면 배정하지 않는다', () => {
     // 서비스가 미리 검증하지만 도메인도 방어적으로 동작해야 한다.
-    const result = decideAssignment({ gender: 'F', age: 20, roundNo: 9 }, context());
-    expect(result).toEqual({ outcome: 'waitlisted', reason: 'round_full' });
+    expect(decideAssignment({ gender: 'F', age: 20, roundNo: 9 }, context())).toEqual({
+      outcome: 'rejected',
+      reason: 'round_full',
+    });
   });
 
   it('배정 가능한 나이가 아니면 예외를 던진다', () => {
@@ -115,87 +131,85 @@ describe('decideAssignment — 선착순', () => {
   });
 });
 
-describe('decideAssignment — 그룹 결정', () => {
-  it('Bridge Zone 이 아니면 성비와 무관하게 기본 그룹을 유지한다', () => {
-    // SUMMER 여성이 10명 부족한 상황이지만 30세는 이동 대상이 아니다.
+describe('decideAssignment — Bridge Zone 이 정원을 확보한다', () => {
+  it('기본 그룹이 마감이면 반대 그룹으로 배정된다', () => {
+    // ★ 정원이 그룹 단위가 되면서 Bridge Zone 은 성비 보정이 아니라
+    //   실제로 참가 가능 여부를 가르는 요소가 된다.
     const result = decideAssignment(
-      { gender: 'F', age: 30, roundNo: 1 },
-      context({ tallies: tallies({ '1-SUMMER-M': 10, '1-NIGHT-M': 0 }) }),
+      { gender: 'F', age: 25, roundNo: 1 },
+      context({ slots: slots({ '1-SUMMER-F': CAPACITY }) }),
     );
 
-    expect(result).toMatchObject({ groupCode: 'NIGHT', movedFromDefaultGroup: false });
+    expect(result).toMatchObject({
+      outcome: 'assigned',
+      groupCode: 'NIGHT',
+      movedFromDefaultGroup: true,
+    });
   });
 
+  it('두 그룹 모두 마감이면 거절한다', () => {
+    const result = decideAssignment(
+      { gender: 'F', age: 25, roundNo: 1 },
+      context({ slots: slots({ '1-SUMMER-F': CAPACITY, '1-NIGHT-F': CAPACITY }) }),
+    );
+
+    expect(result).toEqual({ outcome: 'rejected', reason: 'round_full' });
+  });
+
+  it('Bridge Zone 이 아니면 기본 그룹이 마감이어도 옮기지 않는다', () => {
+    const result = decideAssignment(
+      { gender: 'F', age: 22, roundNo: 1 },
+      context({ slots: slots({ '1-SUMMER-F': CAPACITY }) }),
+    );
+
+    expect(result).toEqual({ outcome: 'rejected', reason: 'round_full' });
+  });
+});
+
+describe('decideAssignment — 그룹 내 성비 보정', () => {
   it('Bridge Zone 이어도 성비가 평온하면 기본 그룹을 유지한다', () => {
     const result = decideAssignment(
       { gender: 'F', age: 25, roundNo: 1 },
       context({
-        tallies: tallies({ '1-SUMMER-M': 5, '1-SUMMER-F': 5, '1-NIGHT-M': 5, '1-NIGHT-F': 5 }),
+        slots: slots({ '1-SUMMER-M': 5, '1-SUMMER-F': 5, '1-NIGHT-M': 5, '1-NIGHT-F': 5 }),
       }),
     );
 
     expect(result).toMatchObject({ groupCode: 'SUMMER', movedFromDefaultGroup: false });
   });
 
-  it('Bridge Zone 이고 반대 그룹의 성비 결손이 크면 그룹을 옮긴다', () => {
-    // NIGHT 는 남성 8 / 여성 0 → 여성이 8명 부족. SUMMER 는 균형.
+  it('반대 그룹의 성비 결손이 3 이상 크면 그룹을 옮긴다', () => {
     const result = decideAssignment(
       { gender: 'F', age: 25, roundNo: 1 },
-      context({
-        tallies: tallies({
-          '1-SUMMER-M': 5,
-          '1-SUMMER-F': 5,
-          '1-NIGHT-M': 8,
-          '1-NIGHT-F': 0,
-        }),
-      }),
+      context({ slots: slots({ '1-NIGHT-M': 3, '1-NIGHT-F': 0 }) }),
     );
 
     expect(result).toMatchObject({ groupCode: 'NIGHT', movedFromDefaultGroup: true });
   });
 
-  it('26세(Bridge Zone) 도 반대 방향(SUMMER)으로 이동할 수 있다', () => {
-    const result = decideAssignment(
-      { gender: 'M', age: 26, roundNo: 1 },
-      context({
-        tallies: tallies({
-          '1-SUMMER-M': 0,
-          '1-SUMMER-F': 9,
-          '1-NIGHT-M': 5,
-          '1-NIGHT-F': 5,
-        }),
-      }),
-    );
-
-    expect(result).toMatchObject({ groupCode: 'SUMMER', movedFromDefaultGroup: true });
-  });
-
-  it('기본 그룹 가산점 때문에 결손 차이가 2 이하면 이동하지 않는다', () => {
-    // NIGHT 결손 2, SUMMER 결손 0 → 2*1 vs 0*1+2 → 동점이므로 기본 그룹 유지
+  it('결손 차이가 2 이하면 기본 그룹 가산점 때문에 이동하지 않는다', () => {
     const result = decideAssignment(
       { gender: 'F', age: 24, roundNo: 1 },
-      context({ tallies: tallies({ '1-NIGHT-M': 2, '1-NIGHT-F': 0 }) }),
+      context({ slots: slots({ '1-NIGHT-M': 2, '1-NIGHT-F': 0 }) }),
     );
 
     expect(result).toMatchObject({ groupCode: 'SUMMER', movedFromDefaultGroup: false });
   });
 
-  it('결손 차이가 3이면 이동한다 (경계값)', () => {
+  it('성비가 좋아지는 쪽이라도 자리가 없으면 가지 않는다', () => {
+    // NIGHT 결손이 크지만 여성 정원이 다 찼으므로 SUMMER 로 배정되어야 한다.
     const result = decideAssignment(
-      { gender: 'F', age: 24, roundNo: 1 },
-      context({ tallies: tallies({ '1-NIGHT-M': 3, '1-NIGHT-F': 0 }) }),
+      { gender: 'F', age: 25, roundNo: 1 },
+      context({ slots: slots({ '1-NIGHT-M': 9, '1-NIGHT-F': CAPACITY }) }),
     );
 
-    expect(result).toMatchObject({ groupCode: 'NIGHT', movedFromDefaultGroup: true });
+    expect(result).toMatchObject({ groupCode: 'SUMMER', movedFromDefaultGroup: false });
   });
 
   it('그룹 판단은 고른 회차의 성비만 본다', () => {
-    // 1회차는 SUMMER 남성이 크게 부족하지만 2회차를 골랐으므로 무시되어야 한다.
     const result = decideAssignment(
       { gender: 'M', age: 27, roundNo: 2 },
-      context({
-        tallies: tallies({ '1-SUMMER-F': 15, '2-SUMMER-F': 0, '2-NIGHT-F': 0 }),
-      }),
+      context({ slots: slots({ '1-SUMMER-F': 9 }) }),
     );
 
     expect(result).toMatchObject({ roundNo: 2, groupCode: 'NIGHT', movedFromDefaultGroup: false });
@@ -204,29 +218,28 @@ describe('decideAssignment — 그룹 결정', () => {
 
 describe('genderDeficit', () => {
   it('반대 성별이 많으면 양수다', () => {
-    const state = tallies({ '1-SUMMER-M': 7, '1-SUMMER-F': 2 });
+    const state = slots({ '1-SUMMER-M': 7, '1-SUMMER-F': 2 });
     expect(genderDeficit(state, 1, 'SUMMER', 'F')).toBe(5);
     expect(genderDeficit(state, 1, 'SUMMER', 'M')).toBe(-5);
   });
 
-  it('카운터가 없는 조합은 0으로 취급한다', () => {
+  it('슬롯이 없는 조합은 0으로 취급한다', () => {
     expect(genderDeficit([], 1, 'NIGHT', 'M')).toBe(0);
   });
 });
 
 describe('chooseGroup', () => {
-  it('그룹이 하나뿐이면 그 그룹을 반환한다', () => {
-    const single: GroupRule[] = [{ code: 'SUMMER', minAge: 18, maxAge: 35, sortOrder: 1 }];
-
+  it('자리가 없으면 null 을 반환한다', () => {
     expect(
       chooseGroup({
         roundNo: 1,
         gender: 'F',
         defaultGroup: 'SUMMER',
-        eligibleForBothGroups: true,
-        context: { groups: single, tallies: tallies(), balancePolicy: DEFAULT_BALANCE_POLICY },
+        candidates: ['SUMMER'],
+        slots: slots({ '1-SUMMER-F': CAPACITY }),
+        balancePolicy: DEFAULT_BALANCE_POLICY,
       }),
-    ).toBe('SUMMER');
+    ).toBeNull();
   });
 
   it('가중치를 바꾸면 이동 민감도가 달라진다', () => {
@@ -234,26 +247,13 @@ describe('chooseGroup', () => {
       roundNo: 1 as const,
       gender: 'F' as const,
       defaultGroup: 'SUMMER' as const,
-      eligibleForBothGroups: true,
-      tallies: tallies({ '1-NIGHT-M': 2, '1-NIGHT-F': 0 }),
+      candidates: ['SUMMER', 'NIGHT'] as GroupCode[],
+      slots: slots({ '1-NIGHT-M': 2, '1-NIGHT-F': 0 }),
     };
 
+    expect(chooseGroup({ ...shared, balancePolicy: DEFAULT_BALANCE_POLICY })).toBe('SUMMER');
     expect(
-      chooseGroup({
-        ...shared,
-        context: { groups: GROUPS, tallies: shared.tallies, balancePolicy: DEFAULT_BALANCE_POLICY },
-      }),
-    ).toBe('SUMMER');
-
-    expect(
-      chooseGroup({
-        ...shared,
-        context: {
-          groups: GROUPS,
-          tallies: shared.tallies,
-          balancePolicy: { balanceWeight: 2, defaultGroupBonus: 2 },
-        },
-      }),
+      chooseGroup({ ...shared, balancePolicy: { balanceWeight: 2, defaultGroupBonus: 2 } }),
     ).toBe('NIGHT');
   });
 });

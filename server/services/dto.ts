@@ -14,28 +14,29 @@ import type { ParticipantRecord } from '../repositories/participantRepository.js
  */
 export const toAssignmentResultDto = (
   participant: ParticipantRecord,
-  extra: { timeLabel: string | null; waitlistPosition: number | null },
+  extra: { timeLabel: string },
 ): AssignmentResultDto => {
-  if (participant.status === 'cancelled') {
-    throw new Error('취소된 신청은 배정 결과로 변환할 수 없습니다.');
+  if (
+    participant.status !== 'assigned' ||
+    participant.assignedGroupCode === null ||
+    participant.assignedRoundNo === null ||
+    participant.participantCode === null
+  ) {
+    throw new Error('배정이 확정되지 않은 신청은 결과로 변환할 수 없습니다.');
   }
 
   return {
-    status: participant.status,
     nickname: participant.nickname,
     groupCode: participant.assignedGroupCode,
     roundNo: participant.assignedRoundNo,
     timeLabel: extra.timeLabel,
     participantCode: participant.participantCode,
-    waitlistPosition: extra.waitlistPosition,
-    waitingForRoundNo:
-      participant.status === 'waitlisted' ? participant.preferredRoundNo : null,
   };
 };
 
 export const toLookupResultDto = (
   participant: ParticipantRecord,
-  extra: { timeLabel: string | null; waitlistPosition: number | null },
+  extra: { timeLabel: string },
 ): LookupResultDto => ({
   ...toAssignmentResultDto(participant, extra),
   maskedName: maskName(participant.name),

@@ -46,8 +46,7 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
   beforeEach(async () => {
     await pool.query('delete from audit_logs');
     await pool.query('delete from participants');
-    await pool.query('update round_capacity set filled_count = 0, capacity = 20');
-    await pool.query('update group_tally set active_count = 0, seq_counter = 0');
+    await pool.query('update round_slots set active_count = 0, seq_counter = 0, capacity = 10');
     await pool.query(
       `update event_settings set is_open = true, event_date = date '2026-08-15'`,
     );
@@ -60,7 +59,7 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
     services.submitApplication({
       name: `참가자${index}`,
       nickname: `닉${index}`,
-      birthdate: '2001-05-14',
+      birthdate: '2004-05-14',
       gender: 'F',
       phone: `010${String(40_000_000 + index).padStart(8, '0')}`,
       email: emailOf(index),
@@ -74,9 +73,9 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
 
   const filledCount = async (roundNo: number): Promise<number> => {
     const { rows } = await pool.query<{ filled_count: number }>(
-      `select rc.filled_count
-         from round_capacity rc join rounds r on r.id = rc.round_id
-        where r.round_no = $1 and rc.gender = 'F'`,
+      `select s.active_count as filled_count
+         from round_slots s join rounds r on r.id = s.round_id
+        where r.round_no = $1 and s.gender = 'F' and s.group_code = 'SUMMER'`,
       [roundNo],
     );
     return rows[0]?.filled_count ?? -1;
@@ -164,25 +163,20 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
     await services.selfCancel.cancelOwnApplication(credentials(1));
 
     const again = await apply(1);
-    expect(again.status).toBe('assigned');
     // 취소된 번호는 재사용되지 않는다.
     expect(again.participantCode).toBe('SUMMER-1-F-002');
   });
 
-  it('대기자도 스스로 취소할 수 있다', async () => {
-    await pool.query('update round_capacity set capacity = 1');
+  it('취소로 열린 자리는 다음 사람이 신청할 수 있다', async () => {
+    await pool.query('update round_slots set capacity = 1');
     await apply(1);
-    const waiting = await apply(2);
-    expect(waiting.status).toBe('waitlisted');
 
-    await services.selfCancel.cancelOwnApplication(credentials(2));
+    // 정원이 차 있으면 신청이 거절된다 (대기자 제도가 없다).
+    await expect(apply(2)).rejects.toThrow(/마감/);
 
-    const { rows } = await pool.query<{ status: string }>(
-      'select status from participants where email = $1',
-      [emailOf(2)],
-    );
-    expect(rows[0]?.status).toBe('cancelled');
-    // 대기자는 좌석을 점유하지 않았으므로 정원은 그대로다.
+    await services.selfCancel.cancelOwnApplication(credentials(1));
+
+    await expect(apply(2)).resolves.toMatchObject({ roundNo: 1 });
     expect(await filledCount(1)).toBe(1);
   });
 

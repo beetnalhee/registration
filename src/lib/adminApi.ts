@@ -90,16 +90,6 @@ export const cancelParticipant = (id: string, notify = true): Promise<AdminParti
     accessToken: token(),
   });
 
-export const promoteParticipant = (
-  id: string,
-  target: { roundNo?: number; groupCode?: GroupCode } = {},
-): Promise<AdminParticipantDto> =>
-  request<AdminParticipantDto>(`/admin/participants/${id}/promote`, {
-    method: 'POST',
-    body: target,
-    accessToken: token(),
-  });
-
 /** 리셉션 출석 확인. 중복 클릭해도 첫 도착 시각이 유지된다. */
 export const checkInParticipant = (id: string): Promise<AdminParticipantDto> =>
   request<AdminParticipantDto>(`/admin/participants/${id}/check-in`, {

@@ -9,7 +9,8 @@ export const GENDERS = ['M', 'F'] as const;
 
 export const GROUP_CODES = ['SUMMER', 'NIGHT'] as const;
 
-export const PARTICIPANT_STATUSES = ['assigned', 'waitlisted', 'cancelled'] as const;
+/** 대기자 제도가 없으므로 배정 또는 취소 두 가지뿐이다. */
+export const PARTICIPANT_STATUSES = ['assigned', 'cancelled'] as const;
 
 /** 참가자 화면에 노출되는 회차 상태. 실제 인원수는 절대 내려보내지 않는다. */
 export const ROUND_AVAILABILITIES = ['open', 'near_full', 'closed'] as const;
@@ -33,13 +34,13 @@ export const ROUND_AVAILABILITY_ICONS: Record<(typeof ROUND_AVAILABILITIES)[numb
 
 export const PARTICIPANT_STATUS_LABELS: Record<(typeof PARTICIPANT_STATUSES)[number], string> = {
   assigned: '배정 완료',
-  waitlisted: '대기',
   cancelled: '취소',
 };
 
 /**
  * 회차는 1개만 고른다(선착순).
- * 고른 회차가 마감이면 다음 순위로 내려가지 않고 그 회차의 대기자가 된다.
+ * 고른 회차가 마감이면 신청할 수 없다. 대기자 제도는 없고,
+ * 누군가 취소해 자리가 열리면 그 시점에 신청하는 사람이 가져간다.
  */
 
 /** 참가번호 자리수: SUMMER-2-F-013 의 '013' 부분 */

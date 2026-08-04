@@ -64,7 +64,7 @@ registration/
 │  │  └─ admin/
 │  │     ├─ overviewService.ts
 │  │     ├─ participantQueryService.ts     목록·상세·CSV
-│  │     ├─ participantMutationService.ts  변경·취소·승격·재발송
+│  │     ├─ participantMutationService.ts  변경·취소·재발송
 │  │     └─ settingsAdminService.ts
 │  │
 │  ├─ email/
@@ -108,7 +108,7 @@ registration/
 │  ├─ lib/                      API 클라이언트, 세션·결과 저장
 │  └─ styles/index.css
 │
-├─ supabase/migrations/         001~004 (스키마·시드·출석·선착순)
+├─ supabase/migrations/         001~005 (스키마·시드·출석·선착순·그룹정원)
 ├─ tests/
 │  ├─ domain/                   단위 테스트
 │  ├─ shared/                   검증 스키마 테스트
@@ -133,13 +133,11 @@ groups
 rounds
   round_no, starts_at, ends_at, is_active
   │
-  ├──< round_capacity   (round_id, gender)  ★ 하드 정원
-  │      capacity=20, filled_count
-  │      CHECK (filled_count <= capacity)   ← 정원 초과 구조적 차단
-  │
-  └──< group_tally      (round_id, group_code, gender)  소프트 균형
-         active_count   현재 인원 (취소 시 감소) → 성비 보정 판단용
-         seq_counter    발급 순번 (절대 감소하지 않음) → 참가번호 재사용 방지
+  └──< round_slots      (round_id, group_code, gender)  ★ 하드 정원
+         capacity=10
+         active_count  현재 인원 (취소 시 감소)
+         seq_counter   발급 순번 (절대 감소하지 않음) → 참가번호 재사용 방지
+         CHECK (active_count <= capacity)   ← 정원 초과 구조적 차단
 
 participants
   신청 정보 : name, nickname, birthdate, gender, phone, email
@@ -165,15 +163,20 @@ admins
 | `participants_active_phone_uniq` | 연락처 중복 신청 차단 |
 | `participants.participant_code` | 참가번호 중복 차단 |
 
-### 정원 모델을 두 표로 나눈 이유
+### 정원을 그룹 단위로 끊은 이유
 
-하드 정원은 `(회차, 성별)` 단위 20명입니다. 그런데 3분 데이트는 **같은 그룹끼리** 짝을 지으므로
-회차 안에서 `SUMMER 남 ≈ SUMMER 여` 가 맞아야 짝이 남지 않습니다.
+하드 정원은 `(회차, 그룹, 성별)` 단위 **10명**입니다. 3회차 × 2그룹 × 2성별 × 10 = 120명.
 
-- `round_capacity` — 넘으면 안 되는 선. CHECK 제약으로 지킨다.
-- `group_tally` — 넘어도 되지만 균형을 봐야 하는 값. Bridge Zone 이동의 판단 근거.
+3분 데이트는 **같은 그룹끼리** 짝을 지으므로 그룹마다 인원을 통제해야 짝이 남지 않습니다.
+그룹별 정원이 하드 제약이면 `(회차, 성별)` 합계 20명은 자동으로 따라오므로 표가 하나로 충분합니다.
 
-두 관심사를 한 표에 섞으면 CHECK 제약을 걸 수 없거나 균형 판단이 어려워집니다.
+이 모델의 귀결 두 가지가 설계 전반에 영향을 줍니다.
+
+1. **회차 상태를 계산하려면 참가자의 그룹을 알아야 합니다.** 그룹은 나이로 정해지므로
+   `/api/rounds/availability` 가 생년월일을 받아 서버에서 계산합니다.
+   URL 에 생년월일이 남지 않도록 POST 를 씁니다.
+2. **Bridge Zone 이 참가 가능 여부를 가릅니다.** 경계 연령은 기본 그룹이 마감이어도
+   반대 그룹에 자리가 있으면 참가할 수 있습니다.
 
 ## 인증 · 권한 구조
 
@@ -233,7 +236,7 @@ notifyParticipant()   ← 트랜잭션 밖에서 호출 (메일 지연이 락을
 /                랜딩 — 히어로, 회차 상태(3상태만), 진행 안내
 /apply           신청
   step 1         이름·닉네임·생년월일·성별·연락처·이메일
-  step 2         회차 1개 선택 (선착순, 성별 기준 상태 표시)
+  step 2         회차 1개 선택 (선착순, 마감 회차는 선택 불가)
   step 3         입력 확인 → 제출
 /apply/complete  배정 결과 (그룹·회차·시간·참가번호) — sessionStorage 로 전달
 /lookup          이메일 + 전화 뒤 4자리 → 본인 배정 조회 및 신청 취소

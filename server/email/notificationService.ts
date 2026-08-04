@@ -3,12 +3,7 @@ import type { Queryable } from '../db/pool.js';
 import type { ParticipantRecord } from '../repositories/participantRepository.js';
 import { recordEmailAttempt, type EmailKind } from '../repositories/emailLogRepository.js';
 import type { Mailer, MailMessage } from './mailer.js';
-import {
-  buildAssignmentMail,
-  buildCancellationMail,
-  buildPromotionMail,
-  buildWaitlistMail,
-} from './templates.js';
+import { buildAssignmentMail, buildCancellationMail } from './templates.js';
 
 export interface NotifyParams {
   participant: ParticipantRecord;
@@ -16,8 +11,6 @@ export interface NotifyParams {
   eventName: string;
   /** 배정 메일에 필요 */
   timeLabel?: string | null;
-  /** 대기 메일에 필요 */
-  waitlistPosition?: number | null;
 }
 
 const buildMessage = (params: NotifyParams, lookupUrl: string): MailMessage | null => {
@@ -30,16 +23,7 @@ const buildMessage = (params: NotifyParams, lookupUrl: string): MailMessage | nu
     });
   }
 
-  if (kind === 'waitlist') {
-    return buildWaitlistMail(participant.email, {
-      eventName,
-      nickname: participant.nickname,
-      waitlistPosition: params.waitlistPosition ?? null,
-      lookupUrl,
-    });
-  }
-
-  // assignment / promotion — 배정 정보가 모두 있어야 발송할 수 있다.
+  // assignment — 배정 정보가 모두 있어야 발송할 수 있다.
   if (
     participant.assignedGroupCode === null ||
     participant.assignedRoundNo === null ||
@@ -49,7 +33,7 @@ const buildMessage = (params: NotifyParams, lookupUrl: string): MailMessage | nu
     return null;
   }
 
-  const data = {
+  return buildAssignmentMail(participant.email, {
     eventName,
     nickname: participant.nickname,
     groupCode: participant.assignedGroupCode,
@@ -57,11 +41,7 @@ const buildMessage = (params: NotifyParams, lookupUrl: string): MailMessage | nu
     timeLabel: params.timeLabel,
     participantCode: participant.participantCode,
     lookupUrl,
-  };
-
-  return kind === 'promotion'
-    ? buildPromotionMail(participant.email, data)
-    : buildAssignmentMail(participant.email, data);
+  });
 };
 
 /**

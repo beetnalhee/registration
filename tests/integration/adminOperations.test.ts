@@ -53,8 +53,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
 
   beforeEach(async () => {
     await pool.query('delete from participants');
-    await pool.query('update round_capacity set filled_count = 0, capacity = 20');
-    await pool.query('update group_tally set active_count = 0, seq_counter = 0');
+    await pool.query('update round_slots set active_count = 0, seq_counter = 0, capacity = 10');
     await pool.query(
       `update event_settings set is_open = true, near_full_threshold = 0.8, event_date = date '2026-08-15'`,
     );
@@ -72,7 +71,9 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     return services.submitApplication({
       name: `참가자${index}`,
       nickname: `닉${index}`,
-      birthdate: overrides.birthdate ?? '2001-05-14',
+      // 만 22세 = SUMMER 고정. 경계 연령(24~27)을 쓰면 기본 그룹이 차도
+      // 반대 그룹으로 넘어가 정원 테스트가 모호해진다.
+      birthdate: overrides.birthdate ?? '2004-05-14',
       gender: overrides.gender ?? 'F',
       phone: `010${String(20_000_000 + index).padStart(8, '0')}`,
       email: `member${index}@example.com`,
@@ -88,8 +89,8 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     return rows[0]?.id as string;
   };
 
-  it('만나이로 그룹이 결정된다 (2001년생 → SUMMER, 1995년생 → NIGHT)', async () => {
-    const young = await apply({ index: 1, birthdate: '2001-05-14' });
+  it('만나이로 그룹이 결정된다 (2004년생 → SUMMER, 1995년생 → NIGHT)', async () => {
+    const young = await apply({ index: 1, birthdate: '2004-05-14' });
     const older = await apply({ index: 2, birthdate: '1995-05-14' });
 
     expect(young.groupCode).toBe('SUMMER');
@@ -117,12 +118,12 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     expect(updated.roundNo).toBe(3);
     expect(updated.participantCode).toBe('SUMMER-3-F-001');
 
-    const { rows } = await pool.query<{ round_no: number; filled_count: number }>(
-      `select r.round_no, rc.filled_count
-         from round_capacity rc join rounds r on r.id = rc.round_id
-        where rc.gender = 'F' order by r.round_no`,
+    const { rows } = await pool.query<{ round_no: number; active_count: number }>(
+      `select r.round_no, s.active_count
+         from round_slots s join rounds r on r.id = s.round_id
+        where s.gender = 'F' and s.group_code = 'SUMMER' order by r.round_no`,
     );
-    expect(rows.map((row) => row.filled_count)).toEqual([0, 0, 1]);
+    expect(rows.map((row) => row.active_count)).toEqual([0, 0, 1]);
   });
 
   it('그룹을 변경하면 새 그룹 기준으로 참가번호가 바뀐다', async () => {
@@ -141,7 +142,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
 
   it('정원이 찬 회차로는 변경할 수 없다', async () => {
     await pool.query(
-      `update round_capacity set capacity = 1
+      `update round_slots set capacity = 1
         where round_id = (select id from rounds where round_no = 2)`,
     );
 
@@ -157,46 +158,32 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     ).rejects.toThrow(/마감/);
   });
 
-  it('대기자를 승격하면 참가번호가 발급되고 대기 상태가 풀린다', async () => {
-    await pool.query('update round_capacity set capacity = 1');
+  it('정원이 차면 신청이 거절된다 (대기자로 만들지 않는다)', async () => {
+    await pool.query('update round_slots set capacity = 1');
 
-    // 1회차 한 자리가 차고, 같은 회차를 고른 다음 사람이 대기 1번이 된다.
     await apply({ index: 1, roundNo: 1 });
-    const waiting = await apply({ index: 2, roundNo: 1 });
 
-    expect(waiting.status).toBe('waitlisted');
-    expect(waiting.waitlistPosition).toBe(1);
-    expect(waiting.waitingForRoundNo).toBe(1);
+    // 2·3회차와 다른 그룹에 자리가 남아 있어도 넘기지 않는다.
+    await expect(apply({ index: 2, roundNo: 1 })).rejects.toThrow(/마감/);
 
-    // 자리를 비운 뒤 승격
+    const { rows } = await pool.query<{ count: string }>('select count(*) from participants');
+    expect(Number(rows[0]?.count)).toBe(1);
+  });
+
+  it('취소로 자리가 열리면 다음 사람이 신청할 수 있다', async () => {
+    await pool.query('update round_slots set capacity = 1');
+
+    await apply({ index: 1, roundNo: 1 });
+    await expect(apply({ index: 2, roundNo: 1 })).rejects.toThrow(/마감/);
+
     await services.mutations.cancelParticipant({
       adminEmail: ADMIN_EMAIL,
       participantId: await idOf(1),
     });
 
-    const promoted = await services.mutations.promoteParticipant({
-      adminEmail: ADMIN_EMAIL,
-      participantId: await idOf(2),
-    });
-
-    expect(promoted.status).toBe('assigned');
-    // 회차를 지정하지 않아도 본인이 고른 회차로 배정된다.
-    expect(promoted.roundNo).toBe(1);
-    expect(promoted.participantCode).toBe('SUMMER-1-F-002');
-  });
-
-  it('선착순이므로 고른 회차가 마감이면 빈 회차가 있어도 대기자가 된다', async () => {
-    await pool.query(
-      `update round_capacity set capacity = 1
-        where round_id = (select id from rounds where round_no = 1)`,
-    );
-
-    await apply({ index: 1, roundNo: 1 });
     const second = await apply({ index: 2, roundNo: 1 });
-
-    // 2·3회차는 20자리씩 비어 있지만 넘기지 않는다.
-    expect(second.status).toBe('waitlisted');
-    expect(second.waitingForRoundNo).toBe(1);
+    // 취소된 번호는 재사용되지 않는다.
+    expect(second.participantCode).toBe('SUMMER-1-F-002');
   });
 
   it('취소된 참가번호는 재사용되지 않는다', async () => {
@@ -220,11 +207,11 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     });
 
     // 이메일·연락처 유니크 인덱스는 취소 건을 제외하므로 재신청이 가능하다.
-    await expect(apply({ index: 1 })).resolves.toMatchObject({ status: 'assigned' });
+    await expect(apply({ index: 1 })).resolves.toMatchObject({ roundNo: 1 });
   });
 
-  it('조회는 생년월일 + 전화 뒤 4자리로 본인을 찾고 이름을 마스킹한다', async () => {
-    await apply({ index: 7, birthdate: '2001-05-14' });
+  it('조회는 이메일 + 전화 뒤 4자리로 본인을 찾고 이름을 마스킹한다', async () => {
+    await apply({ index: 7, birthdate: '2004-05-14' });
 
     const result = await services.lookupAssignment({
       email: 'member7@example.com',
@@ -247,7 +234,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
   it('참가자용 회차 상태에는 인원수가 담기지 않는다', async () => {
     await apply({ index: 1 });
 
-    const statuses = await services.availability.getRoundAvailabilities(pool, 'F');
+    const statuses = await services.availability.getRoundAvailabilities(pool, { gender: 'F', birthdate: '2004-05-14' });
     const serialized = JSON.stringify(statuses);
 
     expect(Object.keys(statuses[0] ?? {})).toEqual(['roundNo', 'availability']);
@@ -255,24 +242,24 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
   });
 
   it('마감 임박 기준을 바꾸면 참가자에게 보이는 상태가 바뀐다', async () => {
-    await pool.query('update round_capacity set capacity = 10');
+    await pool.query('update round_slots set capacity = 10');
     for (let index = 1; index <= 5; index += 1) {
       await apply({ index, roundNo: 1 });
     }
 
-    const before = await services.availability.getRoundAvailabilities(pool, 'F');
+    const before = await services.availability.getRoundAvailabilities(pool, { gender: 'F', birthdate: '2004-05-14' });
     expect(before[0]?.availability).toBe('open');
 
     await pool.query('update event_settings set near_full_threshold = 0.5');
 
-    const after = await services.availability.getRoundAvailabilities(pool, 'F');
+    const after = await services.availability.getRoundAvailabilities(pool, { gender: 'F', birthdate: '2004-05-14' });
     expect(after[0]?.availability).toBe('near_full');
   });
 
   it('접수를 중단하면 모든 회차가 마감으로 표시되고 신청이 거절된다', async () => {
     await pool.query('update event_settings set is_open = false');
 
-    const statuses = await services.availability.getRoundAvailabilities(pool, 'F');
+    const statuses = await services.availability.getRoundAvailabilities(pool, { gender: 'F', birthdate: '2004-05-14' });
     expect(statuses.every((item) => item.availability === 'closed')).toBe(true);
 
     await expect(apply({ index: 1 })).rejects.toThrow(/받고 있지 않/);
@@ -288,7 +275,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
   });
 
   it('관리자 현황판은 실제 인원수와 그룹 구성을 보여준다', async () => {
-    await apply({ index: 1, gender: 'F', birthdate: '2001-05-14' });
+    await apply({ index: 1, gender: 'F', birthdate: '2004-05-14' });
     await apply({ index: 2, gender: 'M', birthdate: '1995-05-14' });
 
     const overview = await services.overview.getAdminOverview(pool);
@@ -297,9 +284,11 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     expect(overview.totalAssigned).toBe(2);
     expect(first?.female.filled).toBe(1);
     expect(first?.male.filled).toBe(1);
+    // 그룹별 10명 × 2그룹 = 성별당 20명
     expect(first?.male.capacity).toBe(20);
-    expect(first?.groups.find((group) => group.groupCode === 'SUMMER')?.female).toBe(1);
-    expect(first?.groups.find((group) => group.groupCode === 'NIGHT')?.male).toBe(1);
+    expect(first?.groups.find((group) => group.groupCode === 'SUMMER')?.female.filled).toBe(1);
+    expect(first?.groups.find((group) => group.groupCode === 'SUMMER')?.female.capacity).toBe(10);
+    expect(first?.groups.find((group) => group.groupCode === 'NIGHT')?.male.filled).toBe(1);
   });
 
   it('CSV 에는 헤더와 참가자 정보가 담긴다', async () => {

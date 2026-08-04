@@ -49,11 +49,7 @@ export const checkInParticipant = async (
   }
 
   if (participant.status !== 'assigned') {
-    throw badRequest(
-      participant.status === 'waitlisted'
-        ? '대기자입니다. 자리가 있으면 먼저 승격해 주세요.'
-        : '취소된 신청입니다. 출석 처리할 수 없습니다.',
-    );
+    throw badRequest('취소된 신청입니다. 출석 처리할 수 없습니다.');
   }
 
   const alreadyCheckedIn = participant.checkedInAt !== null;

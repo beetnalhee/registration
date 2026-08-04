@@ -34,10 +34,18 @@ export const ApplyPage = () => {
 
   const event = useAsync((signal) => fetchEventInfo(signal));
 
-  // 성별을 고른 뒤에는 해당 성별 정원 기준으로 상태를 다시 받는다.
+  // 정원이 (회차, 그룹, 성별) 단위라 성별과 생년월일이 모두 있어야
+  // 정확한 상태가 나온다. 그룹 판정은 서버가 한다.
   const availability = useAsync(
-    (signal) => fetchRoundAvailability(form.gender ?? undefined, signal),
-    [form.gender],
+    (signal) =>
+      fetchRoundAvailability(
+        {
+          ...(form.gender ? { gender: form.gender } : {}),
+          ...(form.birthdate ? { birthdate: form.birthdate } : {}),
+        },
+        signal,
+      ),
+    [form.gender, form.birthdate],
   );
 
   const handleChange = <K extends keyof ApplyFormState>(key: K, value: ApplyFormState[K]) => {
@@ -91,6 +99,11 @@ export const ApplyPage = () => {
       if (error instanceof ApiError && Object.keys(error.fields).length > 0) {
         setErrors(error.fields as FieldErrors);
         setStep(1);
+      } else if (error instanceof ApiError && error.code === 'ROUND_FULL') {
+        // 폼을 채우는 동안 마감된 경우. 최신 상태로 갱신하고 다시 고르게 한다.
+        setForm((previous) => ({ ...previous, roundNo: null }));
+        availability.reload();
+        setStep(2);
       }
       setSubmitError(toErrorMessage(error));
     } finally {

@@ -1,50 +1,43 @@
 import { GROUP_CODES } from '../../../shared/constants.js';
-import type { AdminOverviewDto, GenderCountDto, SlotCountDto } from '../../../shared/types.js';
+import type {
+  AdminOverviewDto,
+  GenderCountDto,
+  Gender,
+  SlotCountDto,
+} from '../../../shared/types.js';
 import type { Queryable } from '../../db/pool.js';
-import { combineAvailability, resolveAvailability } from '../../domain/availability.js';
-import {
-  countAssignedByGroup,
-  countAttendanceByRound,
-  countByStatus,
-} from '../../repositories/participantRepository.js';
+import { availabilityForSlots } from '../../domain/availability.js';
+import type { SlotState } from '../../domain/types.js';
+import { countAttendanceByRound, countByStatus } from '../../repositories/participantRepository.js';
 import { findActiveRounds } from '../../repositories/roundRepository.js';
 import { findEventSettings } from '../../repositories/settingsRepository.js';
-import { findCapacityStates } from '../../repositories/slotRepository.js';
-import type { RoundCapacityState } from '../../domain/types.js';
-import type { Gender } from '../../../shared/types.js';
+import { findSlotStates } from '../../repositories/slotRepository.js';
 
-const EMPTY_COUNT: GenderCountDto = { filled: 0, capacity: 0 };
-
-const toGenderCount = (
-  capacities: RoundCapacityState[],
-  roundNo: number,
-  gender: Gender,
-): GenderCountDto => {
-  const found = capacities.find(
-    (capacity) => capacity.roundNo === roundNo && capacity.gender === gender,
-  );
-  return found ? { filled: found.filled, capacity: found.capacity } : EMPTY_COUNT;
-};
+const sumFor = (slots: SlotState[], gender: Gender): GenderCountDto =>
+  slots
+    .filter((slot) => slot.gender === gender)
+    .reduce(
+      (total, slot) => ({
+        filled: total.filled + slot.filled,
+        capacity: total.capacity + slot.capacity,
+      }),
+      { filled: 0, capacity: 0 },
+    );
 
 /**
  * 관리자 현황판.
+ *
  * 참가자 응답과 달리 실제 인원수와 성비를 그대로 담는다.
  * 이 응답은 requireAdmin 미들웨어를 통과한 요청에만 반환된다.
  */
 export const getAdminOverview = async (client: Queryable): Promise<AdminOverviewDto> => {
-  const [settings, rounds, capacities, groupCounts, statusTally, attendance] = await Promise.all([
+  const [settings, rounds, slots, statusTally, attendance] = await Promise.all([
     findEventSettings(client),
     findActiveRounds(client),
-    findCapacityStates(client),
-    countAssignedByGroup(client),
+    findSlotStates(client),
     countByStatus(client),
     countAttendanceByRound(client),
   ]);
-
-  const countOf = (roundNo: number, groupCode: string, gender: Gender): number =>
-    groupCounts.find(
-      (row) => row.roundNo === roundNo && row.groupCode === groupCode && row.gender === gender,
-    )?.count ?? 0;
 
   return {
     eventName: settings.eventName,
@@ -52,27 +45,23 @@ export const getAdminOverview = async (client: Queryable): Promise<AdminOverview
     isOpen: settings.isOpen,
     nearFullThreshold: settings.nearFullThreshold,
     totalAssigned: statusTally.assigned,
-    totalWaitlisted: statusTally.waitlisted,
     totalCancelled: statusTally.cancelled,
     rounds: rounds.map((round) => {
-      const male = toGenderCount(capacities, round.roundNo, 'M');
-      const female = toGenderCount(capacities, round.roundNo, 'F');
+      const roundSlots = slots.filter((slot) => slot.roundNo === round.roundNo);
 
-      const availability = combineAvailability(
-        [male, female].map((count) =>
-          resolveAvailability({
-            capacity: count.capacity,
-            filled: count.filled,
-            nearFullThreshold: settings.nearFullThreshold,
-          }),
-        ),
-      );
+      // 그룹별 정원이 하드 제약이므로 남/여 합계는 자동으로 그룹 정원의 합이 된다.
+      const male = sumFor(roundSlots, 'M');
+      const female = sumFor(roundSlots, 'F');
 
-      const groups: SlotCountDto[] = GROUP_CODES.map((groupCode) => ({
-        groupCode,
-        male: countOf(round.roundNo, groupCode, 'M'),
-        female: countOf(round.roundNo, groupCode, 'F'),
-      }));
+      const groups: SlotCountDto[] = GROUP_CODES.map((groupCode) => {
+        const forGroup = roundSlots.filter((slot) => slot.groupCode === groupCode);
+
+        return {
+          groupCode,
+          male: sumFor(forGroup, 'M'),
+          female: sumFor(forGroup, 'F'),
+        };
+      });
 
       const counted = attendance.find((item) => item.roundNo === round.roundNo);
 
@@ -81,7 +70,7 @@ export const getAdminOverview = async (client: Queryable): Promise<AdminOverview
         timeLabel: round.timeLabel,
         male,
         female,
-        availability,
+        availability: availabilityForSlots(roundSlots, settings.nearFullThreshold),
         groups,
         attendance: {
           checkedIn: counted?.checkedIn ?? 0,

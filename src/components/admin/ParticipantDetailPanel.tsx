@@ -7,7 +7,6 @@ import { useAsync, toErrorMessage } from '../../hooks/useAsync';
 import {
   cancelParticipant,
   fetchParticipantDetail,
-  promoteParticipant,
   reassignParticipant,
   resendEmail,
 } from '../../lib/adminApi';
@@ -28,12 +27,7 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 );
 
 const emailKindLabel = (kind: string): string =>
-  ({
-    assignment: '배정 안내',
-    waitlist: '대기 안내',
-    promotion: '승격 안내',
-    cancellation: '취소 안내',
-  })[kind] ?? kind;
+  ({ assignment: '배정 안내', cancellation: '취소 안내' })[kind] ?? kind;
 
 export const ParticipantDetailPanel = ({
   participantId,
@@ -170,46 +164,25 @@ export const ParticipantDetailPanel = ({
                 </div>
 
                 <div className="mt-2.5 flex gap-2">
-                  {participant.status === 'waitlisted' ? (
-                    <Button
-                      variant="primary"
-                      fullWidth
-                      loading={busy}
-                      className="py-2.5 text-[13.5px]"
-                      onClick={() =>
-                        void run(
-                          () =>
-                            promoteParticipant(participant.id, {
-                              ...(targetRound !== '' ? { roundNo: targetRound } : {}),
-                              ...(targetGroup !== '' ? { groupCode: targetGroup } : {}),
-                            }),
-                          '대기자를 승격했습니다. 안내 메일을 발송했습니다.',
-                        )
-                      }
-                    >
-                      대기자 승격
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      fullWidth
-                      loading={busy}
-                      disabled={targetRound === '' && targetGroup === ''}
-                      className="py-2.5 text-[13.5px]"
-                      onClick={() =>
-                        void run(
-                          () =>
-                            reassignParticipant(participant.id, {
-                              ...(targetRound !== '' ? { roundNo: targetRound } : {}),
-                              ...(targetGroup !== '' ? { groupCode: targetGroup } : {}),
-                            }),
-                          '배정을 변경했습니다. 참가번호가 재발급되었습니다.',
-                        )
-                      }
-                    >
-                      배정 변경
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    fullWidth
+                    loading={busy}
+                    disabled={targetRound === '' && targetGroup === ''}
+                    className="py-2.5 text-[13.5px]"
+                    onClick={() =>
+                      void run(
+                        () =>
+                          reassignParticipant(participant.id, {
+                            ...(targetRound !== '' ? { roundNo: targetRound } : {}),
+                            ...(targetGroup !== '' ? { groupCode: targetGroup } : {}),
+                          }),
+                        '배정을 변경했습니다. 참가번호가 재발급되었습니다.',
+                      )
+                    }
+                  >
+                    배정 변경
+                  </Button>
                 </div>
               </div>
 

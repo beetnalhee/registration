@@ -107,36 +107,29 @@ export interface InsertParticipantParams {
   defaultGroupCode: GroupCode;
   isBridgeZone: boolean;
   preferredRoundNo: number;
-  assignment:
-    | {
-        status: 'assigned';
-        roundId: string;
-        groupCode: GroupCode;
-        sequenceNo: number;
-        participantCode: string;
-      }
-    | { status: 'waitlisted' };
+  /** 대기자 제도가 없으므로 저장 시점에 이미 자리가 확정되어 있다. */
+  assignment: {
+    roundId: string;
+    groupCode: GroupCode;
+    sequenceNo: number;
+    participantCode: string;
+  };
 }
 
 export const insertParticipant = async (
   client: Queryable,
   params: InsertParticipantParams,
 ): Promise<ParticipantRecord> => {
-  const assigned = params.assignment.status === 'assigned' ? params.assignment : null;
-
   const { rows } = await client.query<{ id: string }>(
     `insert into participants
        (name, nickname, birthdate, gender, phone, email,
         age_at_event, default_group_code, is_bridge_zone,
         preferred_round_no,
-        status, assigned_round_id, assigned_group_code, sequence_no, participant_code,
-        waitlisted_at)
+        status, assigned_round_id, assigned_group_code, sequence_no, participant_code)
      values ($1, $2, $3, $4, $5, $6,
              $7, $8, $9,
              $10,
-             $11::participant_status, $12, $13, $14, $15,
-             -- 대기자만 대기 시각을 기록한다(승격 순서의 기준이 된다).
-             case when $11::participant_status = 'waitlisted' then now() else null end)
+             'assigned', $11, $12, $13, $14)
      returning id`,
     [
       params.name,
@@ -149,11 +142,10 @@ export const insertParticipant = async (
       params.defaultGroupCode,
       params.isBridgeZone,
       params.preferredRoundNo,
-      params.assignment.status,
-      assigned?.roundId ?? null,
-      assigned?.groupCode ?? null,
-      assigned?.sequenceNo ?? null,
-      assigned?.participantCode ?? null,
+      params.assignment.roundId,
+      params.assignment.groupCode,
+      params.assignment.sequenceNo,
+      params.assignment.participantCode,
     ],
   );
 
@@ -179,8 +171,9 @@ export const findParticipantById = async (
 };
 
 /**
- * 조회·본인취소 키: 이메일 + 전화번호 뒤 4자리 (취소 건은 제외)
+ * 조회·본인취소 키: 이메일 + 전화번호 뒤 4자리
  *
+ * 대기자 제도가 없으므로 배정이 확정된 사람만 대상이다.
  * 이메일은 participants_active_email_uniq 로 활성 신청 중 유일하므로
  * 이 조합은 항상 한 명만 가리킨다.
  */
@@ -192,37 +185,13 @@ export const findParticipantByLookupKey = async (
     `${SELECT_PARTICIPANT}
       where lower(p.email) = lower($1)
         and p.phone_last4 = $2
-        and p.status <> 'cancelled'
+        and p.status = 'assigned'
       limit 1`,
     [params.email, params.phoneLast4],
   );
 
   const row = rows[0];
   return row ? toRecord(row) : null;
-};
-
-/** 대기 순번 (1부터). 대기자가 아니면 null. */
-export const findWaitlistPosition = async (
-  client: Queryable,
-  participantId: string,
-): Promise<number | null> => {
-  const { rows } = await client.query<{ position: string }>(
-    `select count(*) + 1 as position
-       from participants earlier
-      where earlier.status = 'waitlisted'
-        and earlier.waitlisted_at < (
-          select waitlisted_at from participants where id = $1 and status = 'waitlisted'
-        )`,
-    [participantId],
-  );
-
-  const row = rows[0];
-  if (!row) {
-    return null;
-  }
-
-  const position = Number(row.position);
-  return Number.isFinite(position) ? position : null;
 };
 
 export interface AssignmentPatch {
@@ -317,13 +286,6 @@ export const countAttendanceByRound = async (
   }));
 };
 
-export const listWaitlisted = async (client: Queryable): Promise<ParticipantRecord[]> => {
-  const { rows } = await client.query<ParticipantRow>(
-    `${SELECT_PARTICIPANT} where p.status = 'waitlisted' order by p.waitlisted_at`,
-  );
-  return rows.map(toRecord);
-};
-
 export interface ParticipantSearchParams {
   q?: string;
   status?: ParticipantStatus;
@@ -405,7 +367,7 @@ export const countByStatus = async (
     `select status, count(*) as count from participants group by status`,
   );
 
-  const tally: Record<ParticipantStatus, number> = { assigned: 0, waitlisted: 0, cancelled: 0 };
+  const tally: Record<ParticipantStatus, number> = { assigned: 0, cancelled: 0 };
   for (const row of rows) {
     tally[row.status] = Number(row.count);
   }

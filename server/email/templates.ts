@@ -10,13 +10,6 @@ export interface AssignmentMailData {
   lookupUrl: string;
 }
 
-export interface WaitlistMailData {
-  eventName: string;
-  nickname: string;
-  waitlistPosition: number | null;
-  lookupUrl: string;
-}
-
 export interface CancellationMailData {
   eventName: string;
   nickname: string;
@@ -122,84 +115,6 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
     subject: `[${data.eventName}] 신청 완료 · ${data.participantCode}`,
     html: layout({
       title: '신청이 완료되었습니다',
-      preheader: `${data.roundNo}회차 ${data.timeLabel} · ${data.participantCode}`,
-      body,
-    }),
-    text,
-  };
-};
-
-export const buildWaitlistMail = (to: string, data: WaitlistMailData): MailMessage => {
-  const positionLine =
-    data.waitlistPosition === null
-      ? '대기 명단에 등록되었습니다.'
-      : `현재 대기 <strong style="color:#FFD98E;">${data.waitlistPosition}번</strong>이세요.`;
-
-  const body = `
-    <p style="margin:0 0 20px;">
-      <strong style="color:#FFEFC7;">${escapeHtml(data.nickname)}</strong>님, 신청해 주셔서 고맙습니다.<br />
-      선택하신 회차가 마감되어 대기자로 등록되었어요.
-    </p>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-           style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,179,193,0.2);
-                  border-radius:14px;padding:16px 18px;">
-      <tr><td style="font-size:15px;color:#F2F5FF;">${positionLine}</td></tr>
-    </table>
-    <p style="margin:20px 0 0;font-size:14px;">
-      자리가 생기면 순서대로 안내드리고, 배정되면 다시 메일을 보내드립니다.
-    </p>
-    ${button(data.lookupUrl, '내 상태 확인하기')}`;
-
-  const text = [
-    `${data.nickname}님, 선택하신 회차가 마감되어 대기자로 등록되었습니다.`,
-    data.waitlistPosition === null ? '' : `현재 대기 ${data.waitlistPosition}번입니다.`,
-    '자리가 생기면 순서대로 안내드립니다.',
-    '',
-    `내 상태 확인하기: ${data.lookupUrl}`,
-  ]
-    .filter(Boolean)
-    .join('\n');
-
-  return {
-    to,
-    subject: `[${data.eventName}] 대기자로 등록되었습니다`,
-    html: layout({ title: '대기자로 등록되었습니다', preheader: '자리가 생기면 안내드립니다', body }),
-    text,
-  };
-};
-
-export const buildPromotionMail = (to: string, data: AssignmentMailData): MailMessage => {
-  const body = `
-    <p style="margin:0 0 20px;">
-      <strong style="color:#FFEFC7;">${escapeHtml(data.nickname)}</strong>님, 자리가 생겼어요!<br />
-      대기자에서 정식 참가자로 배정되었습니다.
-    </p>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-           style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,217,142,0.18);
-                  border-radius:14px;padding:8px 18px;">
-      ${infoRow('그룹', data.groupCode)}
-      ${infoRow('회차', `${data.roundNo}회차`)}
-      ${infoRow('시간', data.timeLabel)}
-      ${infoRow('참가번호', data.participantCode, true)}
-    </table>
-    ${button(data.lookupUrl, '내 배정 확인하기')}`;
-
-  const text = [
-    `${data.nickname}님, 대기자에서 참가자로 배정되었습니다.`,
-    '',
-    `그룹: ${data.groupCode}`,
-    `회차: ${data.roundNo}회차`,
-    `시간: ${data.timeLabel}`,
-    `참가번호: ${data.participantCode}`,
-    '',
-    `내 배정 확인하기: ${data.lookupUrl}`,
-  ].join('\n');
-
-  return {
-    to,
-    subject: `[${data.eventName}] 자리가 생겼어요 · ${data.participantCode}`,
-    html: layout({
-      title: '자리가 생겼어요',
       preheader: `${data.roundNo}회차 ${data.timeLabel} · ${data.participantCode}`,
       body,
     }),

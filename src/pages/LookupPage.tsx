@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { PARTICIPANT_STATUS_LABELS } from '@shared/constants';
 import { lookupSchema } from '@shared/schemas';
 import type { LookupResultDto } from '@shared/types';
 import { AssignmentCard } from '../components/result/AssignmentCard';
@@ -130,15 +129,9 @@ export const LookupPage = () => {
   if (result) {
     return (
       <PageShell>
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <p className="text-[14px] text-slate-300">
-            <strong className="font-semibold text-slate-100">{result.maskedName}</strong>님의 신청
-            내역
-          </p>
-          <span className="rounded-full border border-white/12 bg-white/[0.05] px-3 py-1 text-[12px] text-slate-300">
-            {PARTICIPANT_STATUS_LABELS[result.status]}
-          </span>
-        </div>
+        <p className="mb-5 text-[14px] text-slate-300">
+          <strong className="font-semibold text-slate-100">{result.maskedName}</strong>님의 신청 내역
+        </p>
 
         {error && <ErrorBanner message={error} />}
 
@@ -148,10 +141,10 @@ export const LookupPage = () => {
           <div className="glass-soft mt-6 border-peach-deep/40 bg-peach-deep/10 px-5 py-5">
             <h2 className="text-[15px] font-bold text-peach-soft">정말 취소하시겠어요?</h2>
             <p className="mt-2.5 text-[13.5px] leading-relaxed text-slate-300">
-              취소하면 자리가 <strong className="font-semibold">즉시 다른 분에게 넘어갑니다.</strong>
+              취소하면 자리가 <strong className="font-semibold">즉시 다른 분에게 열립니다.</strong>
               <br />
               되돌릴 수 없고, 다시 참여하려면 새로 신청해야 해요. 그때 자리가 남아 있지 않으면
-              대기자가 됩니다.
+              참여하실 수 없습니다.
             </p>
 
             <div className="mt-5 flex gap-2">

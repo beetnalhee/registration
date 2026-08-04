@@ -3,7 +3,7 @@ import { BALANCE_POLICY } from '../config/policy.js';
 import type { AssignmentContext, GroupRule } from '../domain/types.js';
 import { findGroups, findEventSettings, type EventSettings } from '../repositories/settingsRepository.js';
 import { findActiveRounds, type RoundRecord } from '../repositories/roundRepository.js';
-import { findCapacityStates, findGroupTallyStates } from '../repositories/slotRepository.js';
+import { findSlotStates } from '../repositories/slotRepository.js';
 import { badRequest } from '../errors.js';
 
 export interface EventContext {
@@ -23,24 +23,16 @@ export const loadEventContext = async (client: Queryable): Promise<EventContext>
   return { settings, groups, rounds };
 };
 
-/** 트랜잭션 안에서 최신 정원·카운터를 읽어 배정 컨텍스트를 만든다. */
+/** 트랜잭션 안에서 최신 정원 현황을 읽어 배정 컨텍스트를 만든다. */
 export const loadAssignmentContext = async (
   client: Queryable,
   context: EventContext,
-): Promise<AssignmentContext> => {
-  const [capacities, tallies] = await Promise.all([
-    findCapacityStates(client),
-    findGroupTallyStates(client),
-  ]);
-
-  return {
-    groups: context.groups,
-    agePolicy: context.settings,
-    balancePolicy: BALANCE_POLICY,
-    capacities,
-    tallies,
-  };
-};
+): Promise<AssignmentContext> => ({
+  groups: context.groups,
+  agePolicy: context.settings,
+  balancePolicy: BALANCE_POLICY,
+  slots: await findSlotStates(client),
+});
 
 export const findRoundByNo = (rounds: RoundRecord[], roundNo: number): RoundRecord | undefined =>
   rounds.find((round) => round.roundNo === roundNo);

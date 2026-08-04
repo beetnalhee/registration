@@ -64,9 +64,8 @@ export const AdminDashboardPage = () => {
             </div>
           </section>
 
-          <section className="grid grid-cols-3 gap-3">
+          <section className="grid grid-cols-2 gap-3">
             <StatCard label="배정 완료" value={overview.data.totalAssigned} tone="text-moonlight" />
-            <StatCard label="대기" value={overview.data.totalWaitlisted} tone="text-peach-soft" />
             <StatCard label="취소" value={overview.data.totalCancelled} tone="text-slate-500" />
           </section>
 

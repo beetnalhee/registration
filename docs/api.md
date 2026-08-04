@@ -38,8 +38,7 @@
 | `NOT_FOUND` | 404 | 조회 결과 없음 |
 | `DUPLICATE_EMAIL` / `DUPLICATE_PHONE` | 409 | 중복 신청 |
 | `EVENT_CLOSED` | 409 | 접수 중단 상태 |
-| `ROUND_FULL` | 409 | 처리 중 해당 회차 마감 |
-| `NO_SEAT_AVAILABLE` | 409 | 승격할 빈자리 없음 |
+| `ROUND_FULL` | 409 | 고른 회차·그룹·성별 정원이 찼음. 대기자 제도가 없어 거절된다 |
 | `ALREADY_CANCELLED` | 409 | 이미 취소됨 |
 | `TOO_MANY_REQUESTS` | 429 | 요청 제한 초과 |
 | `INTERNAL_ERROR` | 500 | 서버 오류 |
@@ -65,13 +64,19 @@
 }
 ```
 
-## `GET /api/rounds/availability`
+## `POST /api/rounds/availability`
 
 회차 상태. **인원수·잔여석은 포함되지 않습니다.**
 
-| 쿼리 | 필수 | 설명 |
-|---|---|---|
-| `gender` | 아니오 | `M` \| `F`. 있으면 해당 성별 정원 기준. 없으면 남녀를 합쳐서 계산 |
+요청 본문(모두 선택):
+
+| 필드 | 설명 |
+|---|---|
+| `gender` | `M` \| `F` |
+| `birthdate` | `YYYY-MM-DD`. 정원이 그룹 단위라 나이로 그룹을 정해야 정확한 상태가 나온다 |
+
+둘 다 없으면 그 회차의 모든 슬롯을 합친 개괄 상태를 돌려준다.
+생년월일이 URL 에 남지 않도록 GET 이 아니라 POST 다.
 
 ```json
 [
@@ -224,7 +229,6 @@
   "isOpen": true,
   "nearFullThreshold": 0.8,
   "totalAssigned": 74,
-  "totalWaitlisted": 3,
   "totalCancelled": 2,
   "rounds": [
     {
@@ -234,8 +238,16 @@
       "female": { "filled": 17, "capacity": 20 },
       "availability": "near_full",
       "groups": [
-        { "groupCode": "SUMMER", "male": 10, "female": 9 },
-        { "groupCode": "NIGHT",  "male": 8,  "female": 8 }
+        {
+          "groupCode": "SUMMER",
+          "male": { "filled": 10, "capacity": 10 },
+          "female": { "filled": 9, "capacity": 10 }
+        },
+        {
+          "groupCode": "NIGHT",
+          "male": { "filled": 8, "capacity": 10 },
+          "female": { "filled": 8, "capacity": 10 }
+        }
       ]
     }
   ]
@@ -323,17 +335,6 @@
 ```
 
 좌석을 반납하고 `status='cancelled'` 로 변경합니다. `notify: false` 면 취소 안내 메일을 보내지 않습니다.
-
-## `POST /api/admin/participants/:id/promote`
-
-대기자 승격. 대기 상태인 참가자만 대상입니다.
-
-```json
-{ "roundNo": 2, "groupCode": "SUMMER" }
-```
-
-둘 다 생략하면 본인 희망 순위대로 빈자리를 찾고, 그룹은 신청 때와 같은 규칙으로 정합니다.
-빈자리가 없으면 `409 NO_SEAT_AVAILABLE`. 승격 안내 메일이 자동 발송됩니다.
 
 ## `POST /api/admin/participants/:id/resend-email`
 

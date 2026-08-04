@@ -1,7 +1,8 @@
 import type { EmailLogDto } from '../../shared/types.js';
 import type { Queryable } from '../db/pool.js';
 
-export type EmailKind = 'assignment' | 'waitlist' | 'promotion' | 'cancellation';
+/** 대기자·승격 제도가 없어져 배정 안내와 취소 안내만 남았다. */
+export type EmailKind = 'assignment' | 'cancellation';
 
 export interface RecordEmailParams {
   participantId: string;

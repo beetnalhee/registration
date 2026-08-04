@@ -3,7 +3,6 @@ import { z } from 'zod';
 import {
   adminLoginSchema,
   adminParticipantQuerySchema,
-  adminPromoteSchema,
   adminReassignSchema,
   adminSettingsSchema,
 } from '../../shared/schemas.js';
@@ -21,7 +20,6 @@ import {
 } from '../services/admin/participantQueryService.js';
 import {
   cancelParticipant,
-  promoteParticipant,
   reassignParticipant,
   resendParticipantEmail,
 } from '../services/admin/participantMutationService.js';
@@ -105,23 +103,6 @@ adminRoutes.post(
     ok(
       res,
       await cancelParticipant({
-        adminEmail: getAdmin(res).email,
-        participantId: id,
-        ...body,
-      }),
-    );
-  }),
-);
-
-adminRoutes.post(
-  '/participants/:id/promote',
-  asyncHandler(async (req, res) => {
-    const { id } = participantIdSchema.parse(req.params);
-    const body = adminPromoteSchema.parse(req.body ?? {});
-
-    ok(
-      res,
-      await promoteParticipant({
         adminEmail: getAdmin(res).email,
         participantId: id,
         ...body,

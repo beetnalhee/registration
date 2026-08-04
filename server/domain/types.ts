@@ -19,20 +19,19 @@ export interface AgePolicy {
   bridgeMaxAge: number;
 }
 
-/** 하드 정원 상태: (회차, 성별) 단위 */
-export interface RoundCapacityState {
-  roundNo: number;
-  gender: Gender;
-  capacity: number;
-  filled: number;
-}
-
-/** 소프트 균형 상태: (회차, 그룹, 성별) 단위 */
-export interface GroupTallyState {
+/**
+ * 정원 슬롯: (회차, 그룹, 성별) 단위. 기본 10명.
+ *
+ * 3분 데이트는 같은 그룹끼리 짝을 짓기 때문에 정원을 그룹 단위로 끊는다.
+ * 이 값이 하드 제약이라 (회차, 성별) 합계 20명은 자동으로 따라온다.
+ */
+export interface SlotState {
   roundNo: number;
   groupCode: GroupCode;
   gender: Gender;
-  activeCount: number;
+  capacity: number;
+  /** 현재 유효 인원. 취소 시 감소한다. */
+  filled: number;
 }
 
 /** 그룹 선택 시 '기본 그룹 유지'와 '성비 보정' 사이의 가중치 */
@@ -54,10 +53,15 @@ export interface AssignmentContext {
   groups: GroupRule[];
   agePolicy: AgePolicy;
   balancePolicy: BalancePolicy;
-  capacities: RoundCapacityState[];
-  tallies: GroupTallyState[];
+  slots: SlotState[];
 }
 
+/**
+ * 배정 결과.
+ *
+ * 대기자가 없으므로 자리가 없으면 거절이다.
+ * 참가자는 다른 회차를 고르거나, 누군가 취소해 자리가 열리면 다시 시도한다.
+ */
 export type AssignmentDecision =
   | {
       outcome: 'assigned';
@@ -67,15 +71,8 @@ export type AssignmentDecision =
       movedFromDefaultGroup: boolean;
     }
   | {
-      outcome: 'waitlisted';
-      /** 고른 회차가 마감이었다. 선착순이므로 다른 회차로 넘기지 않는다. */
+      outcome: 'rejected';
       reason: 'round_full';
     };
-
-export interface AvailabilityInput {
-  capacity: number;
-  filled: number;
-  nearFullThreshold: number;
-}
 
 export type { Gender, GroupCode, RoundAvailability };

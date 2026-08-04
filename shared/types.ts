@@ -51,18 +51,16 @@ export interface RoundAvailabilityDto {
   availability: RoundAvailability;
 }
 
+/**
+ * 배정 결과. 대기자 제도가 없으므로 신청이 성공하면 항상 자리가 확정된다.
+ * 자리가 없으면 신청 자체가 거절되므로 null 인 필드가 없다.
+ */
 export interface AssignmentResultDto {
-  status: Extract<ParticipantStatus, 'assigned' | 'waitlisted'>;
   nickname: string;
-  /** 대기자는 null */
-  groupCode: GroupCode | null;
-  roundNo: number | null;
-  timeLabel: string | null;
-  participantCode: string | null;
-  /** 대기 순번 (대기자만) */
-  waitlistPosition: number | null;
-  /** 대기자가 기다리는 회차. 선착순이라 고른 회차 하나만 기다린다. */
-  waitingForRoundNo: number | null;
+  groupCode: GroupCode;
+  roundNo: number;
+  timeLabel: string;
+  participantCode: string;
 }
 
 export interface SelfCancelResultDto {
@@ -83,15 +81,16 @@ export interface AdminSessionDto {
   expiresAt: number;
 }
 
-export interface SlotCountDto {
-  groupCode: GroupCode;
-  male: number;
-  female: number;
-}
-
 export interface GenderCountDto {
   filled: number;
   capacity: number;
+}
+
+/** 그룹별 정원 현황. 하드 정원이 (회차, 그룹, 성별) 단위이므로 그룹마다 정원이 있다. */
+export interface SlotCountDto {
+  groupCode: GroupCode;
+  male: GenderCountDto;
+  female: GenderCountDto;
 }
 
 /** 회차별 출석 현황. 배정 인원 대비 몇 명이 도착했는지. */
@@ -116,7 +115,6 @@ export interface AdminOverviewDto {
   isOpen: boolean;
   nearFullThreshold: number;
   totalAssigned: number;
-  totalWaitlisted: number;
   totalCancelled: number;
   rounds: RoundOverviewDto[];
 }

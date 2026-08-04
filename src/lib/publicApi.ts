@@ -12,18 +12,30 @@ import { request } from './api';
 export const fetchEventInfo = (signal?: AbortSignal): Promise<EventInfoDto> =>
   request<EventInfoDto>('/event', signal ? { signal } : {});
 
+export interface AvailabilityRequest {
+  gender?: Gender;
+  /** 'YYYY-MM-DD'. 정원이 그룹 단위라 나이를 알아야 정확한 상태가 나온다. */
+  birthdate?: string;
+}
+
 /**
  * 회차 상태를 가져온다.
- * 성별을 알면 함께 보내 정확한 상태를 받는다(성별별로 정원이 분리되어 있다).
- * 응답에는 인원수가 포함되지 않으므로 성별을 보내도 노출되는 정보는 없다.
+ *
+ * 정원이 (회차, 그룹, 성별) 단위이므로 정확한 상태를 알려면 성별과 생년월일이
+ * 모두 필요하다. 그룹 판정은 서버가 하고, 응답에는 상태 문자열만 담기므로
+ * 참가자에게 그룹이나 인원수가 노출되지 않는다.
+ *
+ * 생년월일이 URL 에 남지 않도록 POST 를 쓴다.
  */
 export const fetchRoundAvailability = (
-  gender?: Gender,
+  query: AvailabilityRequest = {},
   signal?: AbortSignal,
-): Promise<RoundAvailabilityDto[]> => {
-  const query = gender ? `?gender=${gender}` : '';
-  return request<RoundAvailabilityDto[]>(`/rounds/availability${query}`, signal ? { signal } : {});
-};
+): Promise<RoundAvailabilityDto[]> =>
+  request<RoundAvailabilityDto[]>('/rounds/availability', {
+    method: 'POST',
+    body: query,
+    ...(signal ? { signal } : {}),
+  });
 
 export const submitApplication = (input: ApplicationInput): Promise<AssignmentResultDto> =>
   request<AssignmentResultDto>('/applications', { method: 'POST', body: input });
