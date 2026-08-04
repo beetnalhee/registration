@@ -6,18 +6,6 @@ export const formatTimeRange = (startsAt: string, endsAt: string): string =>
 export const formatRoundLabel = (roundNo: number): string => `${roundNo}회차`;
 
 /**
- * 이름 마스킹. 조회 화면에서 본인 확인용으로만 쓴다.
- * '김희주' → '김○○', '김민' → '김○', '이' → '이'
- */
-export const maskName = (name: string): string => {
-  const trimmed = name.trim();
-  if (trimmed.length <= 1) {
-    return trimmed;
-  }
-  return `${trimmed[0]}${'○'.repeat(trimmed.length - 1)}`;
-};
-
-/**
  * 입력 중인 전화번호에 하이픈을 붙여준다.
  *
  * 서버는 숫자만 남겨 저장하므로 하이픈은 어차피 선택 사항이다.

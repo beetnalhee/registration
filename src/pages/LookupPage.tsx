@@ -130,7 +130,7 @@ export const LookupPage = () => {
     return (
       <PageShell>
         <p className="mb-5 text-[14px] text-slate-300">
-          <strong className="font-semibold text-slate-100">{result.maskedName}</strong>님의 신청 내역
+          <strong className="font-semibold text-slate-100">{result.name}</strong>님의 신청 내역
         </p>
 
         {error && <ErrorBanner message={error} />}

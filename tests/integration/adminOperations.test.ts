@@ -210,7 +210,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     await expect(apply({ index: 1 })).resolves.toMatchObject({ roundNo: 1 });
   });
 
-  it('조회는 이메일 + 전화 뒤 4자리로 본인을 찾고 이름을 마스킹한다', async () => {
+  it('조회는 이메일 + 전화 뒤 4자리로 본인을 찾고 실명을 보여준다', async () => {
     await apply({ index: 7, birthdate: '2004-05-14' });
 
     const result = await services.lookupAssignment({
@@ -219,8 +219,7 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     });
 
     expect(result.participantCode).toBe('SUMMER-1-F-001');
-    expect(result.maskedName).toBe('참○○○');
-    expect(result.maskedName).not.toContain('7');
+    expect(result.name).toBe('참가자7');
   });
 
   it('조회 키가 틀리면 아무 정보도 주지 않는다', async () => {

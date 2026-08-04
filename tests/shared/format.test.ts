@@ -4,7 +4,6 @@ import {
   formatPhoneInput,
   formatRoundLabel,
   formatTimeRange,
-  maskName,
 } from '../../shared/format.js';
 
 describe('formatTimeRange', () => {
@@ -16,29 +15,6 @@ describe('formatTimeRange', () => {
 describe('formatRoundLabel', () => {
   it('회차 라벨을 만든다', () => {
     expect(formatRoundLabel(2)).toBe('2회차');
-  });
-});
-
-describe('maskName', () => {
-  it('첫 글자만 남기고 가린다', () => {
-    expect(maskName('김희주')).toBe('김○○');
-    expect(maskName('김민')).toBe('김○');
-  });
-
-  it('한 글자 이름은 그대로 둔다', () => {
-    expect(maskName('이')).toBe('이');
-  });
-
-  it('앞뒤 공백을 제거한 뒤 가린다', () => {
-    expect(maskName('  김희주  ')).toBe('김○○');
-  });
-
-  it('빈 문자열도 안전하게 처리한다', () => {
-    expect(maskName('   ')).toBe('');
-  });
-
-  it('가린 결과에 원래 이름이 남지 않는다', () => {
-    expect(maskName('남궁민수')).toBe('남○○○');
   });
 });
 

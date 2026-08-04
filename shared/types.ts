@@ -68,8 +68,11 @@ export interface SelfCancelResultDto {
 }
 
 export interface LookupResultDto extends AssignmentResultDto {
-  /** '김○○' 형태로 마스킹된 이름 */
-  maskedName: string;
+  /**
+   * 실명. 이메일 + 전화번호 뒤 4자리를 맞춘 본인에게만 내려간다.
+   * (마스킹하면 오히려 본인 확인이 어려워진다는 판단)
+   */
+  name: string;
 }
 
 // ─── 관리자용 ──────────────────────────────────────────────────────────────

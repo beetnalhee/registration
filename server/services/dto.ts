@@ -1,4 +1,3 @@
-import { maskName } from '../../shared/format.js';
 import type {
   AdminParticipantDto,
   AssignmentResultDto,
@@ -39,7 +38,7 @@ export const toLookupResultDto = (
   extra: { timeLabel: string },
 ): LookupResultDto => ({
   ...toAssignmentResultDto(participant, extra),
-  maskedName: maskName(participant.name),
+  name: participant.name,
 });
 
 /** 관리자용 — 내부 운영 정보를 포함한다. 관리자 인증을 통과한 요청에만 사용한다. */

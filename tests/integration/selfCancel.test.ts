@@ -199,6 +199,6 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
     const result = await services.lookup.lookupAssignment(credentials(1));
 
     expect(result.participantCode).toBe('SUMMER-1-F-001');
-    expect(result.maskedName).toBe('참○○○');
+    expect(result.name).toBe('참가자1');
   });
 });

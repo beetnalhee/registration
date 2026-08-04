@@ -12,8 +12,7 @@ import { toLookupResultDto } from './dto.js';
  * 이 조합은 본인 취소의 자격증명도 되므로 지인이 알기 쉬운 값(생년월일)은 쓰지 않는다.
  * 이메일은 활성 신청 중 유일하므로 조합이 항상 한 명만 가리킨다.
  *
- * 무작위 대조를 막기 위해 라우터에서 IP 기준 요청 제한을 걸고,
- * 응답에서 이름은 마스킹한다.
+ * 무작위 대조를 막기 위해 라우터에서 IP 기준 요청 제한을 건다.
  */
 export const lookupAssignment = async (input: LookupInput): Promise<LookupResultDto> => {
   const pool = getPool();

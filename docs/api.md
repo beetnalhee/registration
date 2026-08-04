@@ -153,14 +153,12 @@
 
 ```json
 {
-  "status": "assigned",
-  "maskedName": "김○○",
+  "name": "김희주",
   "nickname": "희주",
   "groupCode": "SUMMER",
   "roundNo": 2,
   "timeLabel": "22:05 ~ 22:25",
-  "participantCode": "SUMMER-2-F-013",
-  "waitlistPosition": null
+  "participantCode": "SUMMER-2-F-013"
 }
 ```
 
