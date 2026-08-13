@@ -1,28 +1,20 @@
-import { GENDER_LABELS, GENDERS } from '@shared/constants';
 import { formatPhoneInput } from '@shared/format';
-import type { Gender } from '@shared/types';
-import { BirthdateField } from '../ui/BirthdateField';
-import { ChoiceGroup, TextField } from '../ui/Field';
+import { TextField } from '../ui/Field';
 import type { ApplyFormState, FieldErrors } from './formState';
 
-interface BasicInfoStepProps {
+interface ContactStepProps {
   form: ApplyFormState;
   errors: FieldErrors;
   onChange: <K extends keyof ApplyFormState>(key: K, value: ApplyFormState[K]) => void;
 }
 
-const GENDER_OPTIONS = GENDERS.map((value) => ({
-  value,
-  label: GENDER_LABELS[value],
-}));
-
 /**
- * 1단계 — 기본 정보.
+ * 3단계 — 연락처.
  *
- * 생년월일은 그룹 판정에 쓰이지만, 화면에서는 그 사실을 설명하지 않는다.
- * 참가자는 자신이 어떤 기준으로 그룹이 나뉘는지 알 필요가 없다.
+ * 회차를 고른 뒤에 받는다. 자리가 있는지 먼저 확인하고 나서 개인정보를 적게 하면
+ * 마감된 회차 때문에 헛수고하는 범위가 1단계의 두 필드로 줄어든다.
  */
-export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) => (
+export const ContactStep = ({ form, errors, onChange }: ContactStepProps) => (
   <div className="space-y-5">
     <div className="grid grid-cols-2 gap-3">
       <TextField
@@ -43,22 +35,6 @@ export const BasicInfoStep = ({ form, errors, onChange }: BasicInfoStepProps) =>
         {...(errors.nickname ? { error: errors.nickname } : {})}
       />
     </div>
-
-    <BirthdateField
-      label="생년월일"
-      value={form.birthdate}
-      onChange={(value) => onChange('birthdate', value)}
-      {...(errors.birthdate ? { error: errors.birthdate } : {})}
-    />
-
-    <ChoiceGroup<Gender>
-      label="성별"
-      name="gender"
-      options={GENDER_OPTIONS}
-      value={form.gender}
-      onChange={(value) => onChange('gender', value)}
-      {...(errors.gender ? { error: errors.gender } : {})}
-    />
 
     {/* 하이픈은 입력하는 대로 자동으로 붙는다. 서버는 숫자만 남겨 저장한다. */}
     <TextField

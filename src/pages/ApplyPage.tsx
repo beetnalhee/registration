@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BasicInfoStep } from '../components/apply/BasicInfoStep';
 import { ConfirmStep } from '../components/apply/ConfirmStep';
+import { ContactStep } from '../components/apply/ContactStep';
+import { IdentityStep } from '../components/apply/IdentityStep';
 import { PreferenceStep } from '../components/apply/PreferenceStep';
 import { StepIndicator, TOTAL_STEPS } from '../components/apply/StepIndicator';
 import {
   EMPTY_FORM,
+  IDENTITY_FIELDS,
   toApplicationPayload,
   updateForm,
-  validateBasicInfo,
+  validateContact,
+  validateIdentity,
   validateRoundSelection,
   type ApplyFormState,
   type FieldErrors,
@@ -21,7 +24,27 @@ import { ApiError } from '../lib/api';
 import { fetchEventInfo, fetchRoundAvailability, submitApplication } from '../lib/publicApi';
 import { saveAssignmentResult } from '../lib/resultStorage';
 
-const STEP_TITLES = ['어떤 분이신가요?', '언제 만날까요?', '이대로 신청할까요?'] as const;
+const STEP_TITLES = [
+  '어떤 분이신가요?',
+  '언제 만날까요?',
+  '어디로 안내드릴까요?',
+  '이대로 신청할까요?',
+] as const;
+
+/**
+ * 1단계에서 생년월일·성별만 먼저 받는 이유를 참가자 언어로 설명한다.
+ * 나이로 그룹이 나뉜다는 내부 규칙은 드러내지 않는다.
+ */
+const STEP_DESCRIPTIONS: readonly (string | undefined)[] = [
+  '지금 등록 가능한 회차를 확인해보세요.',
+  undefined,
+  '배정 결과를 보내드릴 곳이 필요해요.',
+  undefined,
+];
+
+/** 제출 오류를 어느 단계로 되돌릴지 정한다. */
+const stepForErrorFields = (fields: FieldErrors): number =>
+  IDENTITY_FIELDS.some((field) => fields[field] !== undefined) ? 1 : 3;
 
 export const ApplyPage = () => {
   const navigate = useNavigate();
@@ -56,16 +79,11 @@ export const ApplyPage = () => {
   const rounds = event.data?.rounds ?? [];
 
   const goNext = () => {
-    if (step === 1) {
-      const found = validateBasicInfo(form);
-      setErrors(found);
-      if (Object.keys(found).length > 0) {
-        return;
-      }
-    }
+    const validate =
+      step === 1 ? validateIdentity : step === 2 ? validateRoundSelection : step === 3 ? validateContact : null;
 
-    if (step === 2) {
-      const found = validateRoundSelection(form);
+    if (validate) {
+      const found = validate(form);
       setErrors(found);
       if (Object.keys(found).length > 0) {
         return;
@@ -97,8 +115,11 @@ export const ApplyPage = () => {
       navigate('/apply/complete', { replace: true });
     } catch (error) {
       if (error instanceof ApiError && Object.keys(error.fields).length > 0) {
-        setErrors(error.fields as FieldErrors);
-        setStep(1);
+        const fields = error.fields as FieldErrors;
+        setErrors(fields);
+        // 문제가 된 값을 입력한 단계로 되돌린다. 연락처 오류인데 1단계로 보내면
+        // 참가자는 멀쩡한 생년월일 화면에서 무엇이 틀렸는지 알 수 없다.
+        setStep(stepForErrorFields(fields));
       } else if (error instanceof ApiError && error.code === 'ROUND_FULL') {
         // 폼을 채우는 동안 마감된 경우. 최신 상태로 갱신하고 다시 고르게 한다.
         setForm((previous) => ({ ...previous, roundNo: null }));
@@ -147,12 +168,16 @@ export const ApplyPage = () => {
   return (
     <PageShell>
       <StepIndicator current={step} />
-      <SectionTitle eyebrow={`STEP ${step} / ${TOTAL_STEPS}`} title={STEP_TITLES[step - 1] ?? ''} />
+      <SectionTitle
+        eyebrow={`STEP ${step} / ${TOTAL_STEPS}`}
+        title={STEP_TITLES[step - 1] ?? ''}
+        {...(STEP_DESCRIPTIONS[step - 1] ? { description: STEP_DESCRIPTIONS[step - 1] as string } : {})}
+      />
 
       {submitError && <ErrorBanner message={submitError} />}
 
       <div className="animate-fade-up">
-        {step === 1 && <BasicInfoStep form={form} errors={errors} onChange={handleChange} />}
+        {step === 1 && <IdentityStep form={form} errors={errors} onChange={handleChange} />}
 
         {step === 2 &&
           (availability.loading ? (
@@ -167,7 +192,9 @@ export const ApplyPage = () => {
             />
           ))}
 
-        {step === 3 && <ConfirmStep form={form} rounds={rounds} />}
+        {step === 3 && <ContactStep form={form} errors={errors} onChange={handleChange} />}
+
+        {step === 4 && <ConfirmStep form={form} rounds={rounds} />}
       </div>
 
       <div className="mt-8 flex gap-3 pb-10">

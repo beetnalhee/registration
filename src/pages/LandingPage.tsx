@@ -60,9 +60,15 @@ export const LandingPage = () => {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-4 flex items-center gap-2 text-[13px] font-medium tracking-[0.1em] text-slate-400">
+        <h2 className="mb-2 flex items-center gap-2 text-[13px] font-medium tracking-[0.1em] text-slate-400">
           <span aria-hidden>✨</span> 회차 안내
         </h2>
+
+        {/* 이 배지는 회차 전체를 합친 개괄이다. 정확한 상태는 생년월일·성별을 받아야
+            나오므로, 여기 표시만 보고 확정으로 받아들이지 않도록 미리 알린다. */}
+        <p className="mb-4 text-[13px] leading-relaxed text-slate-500">
+          전체 접수 현황이에요. 신청 화면에서 지금 등록 가능한 회차를 확인해보세요.
+        </p>
 
         {event.error ? (
           <ErrorBanner message={event.error} />

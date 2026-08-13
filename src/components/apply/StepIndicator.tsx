@@ -1,4 +1,4 @@
-const STEP_LABELS = ['기본 정보', '회차 선택', '확인'] as const;
+const STEP_LABELS = ['기본 정보', '회차 선택', '연락처', '확인'] as const;
 
 export const TOTAL_STEPS = STEP_LABELS.length;
 

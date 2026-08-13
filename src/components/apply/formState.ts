@@ -29,14 +29,26 @@ export const updateForm = <K extends keyof ApplyFormState>(
   value: ApplyFormState[K],
 ): ApplyFormState => ({ ...form, [key]: value });
 
-const basicInfoSchema = applicationSchema.pick({
-  name: true,
-  nickname: true,
+/**
+ * 회차 상태 계산에 필요한 값. 정원이 (회차, 그룹, 성별) 단위이고 그룹은
+ * 나이로 정해지므로, 이 둘만 있으면 그 사람 기준의 정확한 회차 상태가 나온다.
+ * 그래서 신청서에서 가장 먼저 받는다.
+ */
+const identitySchema = applicationSchema.pick({
   birthdate: true,
   gender: true,
+});
+
+/** 배정 결과를 전달하는 데 필요한 값. 회차를 고른 뒤에 받는다. */
+const contactSchema = applicationSchema.pick({
+  name: true,
+  nickname: true,
   phone: true,
   email: true,
 });
+
+/** 신원 단계에서 입력받는 필드. 제출 오류를 어느 단계로 되돌릴지 판단할 때도 쓴다. */
+export const IDENTITY_FIELDS = ['birthdate', 'gender'] as const;
 
 export type FieldErrors = Partial<Record<keyof ApplyFormState, string>>;
 
@@ -53,9 +65,15 @@ const toFieldErrors = (issues: { path: (string | number)[]; message: string }[])
   return errors;
 };
 
-/** 1단계 검증. 서버와 같은 zod 스키마를 쓰므로 규칙이 어긋날 일이 없다. */
-export const validateBasicInfo = (form: ApplyFormState): FieldErrors => {
-  const result = basicInfoSchema.safeParse(form);
+/** 1단계 검증 — 생년월일·성별. 서버와 같은 zod 스키마를 쓰므로 규칙이 어긋날 일이 없다. */
+export const validateIdentity = (form: ApplyFormState): FieldErrors => {
+  const result = identitySchema.safeParse(form);
+  return result.success ? {} : toFieldErrors(result.error.issues);
+};
+
+/** 3단계 검증 — 이름·닉네임·연락처·이메일. */
+export const validateContact = (form: ApplyFormState): FieldErrors => {
+  const result = contactSchema.safeParse(form);
   return result.success ? {} : toFieldErrors(result.error.issues);
 };
 
