@@ -16,7 +16,6 @@ const data = {
   roundNo: 2,
   timeLabel: '22:05 ~ 22:25',
   participantCode: 'SUMMER-2-F-013',
-  lookupUrl: 'https://example.com/lookup',
 };
 
 describe('buildAssignmentMail', () => {
@@ -39,6 +38,16 @@ describe('buildAssignmentMail', () => {
 
     expect(mail.text).toContain(VENUE);
     expect(mail.text).toContain(`${ARRIVAL_LEAD_MINUTES}분 전까지`);
+  });
+
+  it('조회 페이지로 보내는 버튼·링크는 넣지 않는다', () => {
+    const mail = buildAssignmentMail('heeju@example.com', data);
+
+    // 메일에 필요한 것은 당일 리셉션에서 보여줄 정보뿐이다.
+    expect(mail.html).not.toContain('내 배정 다시 보기');
+    expect(mail.html).not.toContain('/lookup');
+    expect(mail.text).not.toContain('내 배정 다시 보기');
+    expect(mail.text).not.toContain('/lookup');
   });
 
   it('기존 배정 정보(회차·시간·참가번호)는 그대로 유지한다', () => {

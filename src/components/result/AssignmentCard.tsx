@@ -52,7 +52,7 @@ export const AssignmentCard = ({ result }: { result: AssignmentResultDto }) => (
     </div>
 
     <p className="border-t border-white/[0.07] bg-moonlight/[0.06] px-6 py-4 text-center text-[13px] font-medium leading-relaxed text-moonlight-soft">
-      ⏰ {ARRIVAL_NOTICE}
+      {ARRIVAL_NOTICE}
     </p>
 
     <p className="border-t border-white/[0.07] px-6 py-4 text-center text-[12.5px] leading-relaxed text-slate-500">

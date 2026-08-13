@@ -86,7 +86,6 @@ beforeAll(async () => {
   process.env.DATABASE_URL = 'postgresql://user:pw@localhost:5432/postgres';
   process.env.SUPABASE_URL = 'http://localhost:54321';
   process.env.SUPABASE_ANON_KEY = 'test-anon-key';
-  process.env.PUBLIC_BASE_URL = 'https://example.test';
 
   ({ notifyParticipant } = await import('../../server/email/notificationService.js'));
 });

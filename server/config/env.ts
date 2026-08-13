@@ -15,7 +15,6 @@ const envSchema = z.object({
   GMAIL_APP_PASSWORD: z.string().min(1).optional(),
   MAIL_FROM_NAME: z.string().default('사랑은 돌아오는 거야'),
 
-  PUBLIC_BASE_URL: z.string().url().default('http://localhost:5173'),
   PORT: z.coerce.number().int().positive().default(3001),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 });

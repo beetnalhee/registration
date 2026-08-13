@@ -1,4 +1,3 @@
-import { loadEnv } from '../config/env.js';
 import type { Queryable } from '../db/pool.js';
 import type { ParticipantRecord } from '../repositories/participantRepository.js';
 import { recordEmailAttempt, type EmailKind } from '../repositories/emailLogRepository.js';
@@ -13,7 +12,7 @@ export interface NotifyParams {
   timeLabel?: string | null;
 }
 
-const buildMessage = (params: NotifyParams, lookupUrl: string): MailMessage | null => {
+const buildMessage = (params: NotifyParams): MailMessage | null => {
   const { participant, kind, eventName } = params;
 
   if (kind === 'cancellation') {
@@ -40,7 +39,6 @@ const buildMessage = (params: NotifyParams, lookupUrl: string): MailMessage | nu
     roundNo: participant.assignedRoundNo,
     timeLabel: params.timeLabel,
     participantCode: participant.participantCode,
-    lookupUrl,
   });
 };
 
@@ -57,8 +55,7 @@ export const notifyParticipant = async (
   mailer: Mailer,
   params: NotifyParams,
 ): Promise<boolean> => {
-  const lookupUrl = `${loadEnv().PUBLIC_BASE_URL}/lookup`;
-  const message = buildMessage(params, lookupUrl);
+  const message = buildMessage(params);
 
   if (!message) {
     console.warn(

@@ -8,7 +8,6 @@ export interface AssignmentMailData {
   roundNo: number;
   timeLabel: string;
   participantCode: string;
-  lookupUrl: string;
 }
 
 export interface CancellationMailData {
@@ -72,20 +71,11 @@ const infoRow = (label: string, value: string, emphasis = false): string => `
     </td>
   </tr>`;
 
-const button = (url: string, label: string): string => `
-  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px auto 0;">
-    <tr><td style="border-radius:999px;background:linear-gradient(135deg,#FFD98E 0%,#FFB3C1 100%);">
-      <a href="${escapeHtml(url)}"
-         style="display:inline-block;padding:13px 30px;font-size:14px;font-weight:700;
-                color:#0B1026;text-decoration:none;border-radius:999px;">${escapeHtml(label)}</a>
-    </td></tr>
-  </table>`;
-
 export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailMessage => {
   const body = `
     <p style="margin:0 0 20px;">
       <strong style="color:#FFEFC7;">${escapeHtml(data.nickname)}</strong>님, 신청이 완료되었어요.<br />
-      아래 정보를 행사 당일에 그대로 보여주시면 됩니다.
+      아래 정보를 대기실 리셉션에서 보여주시면 됩니다.
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,217,142,0.18);
@@ -97,15 +87,15 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
       ${infoRow('참가번호', data.participantCode, true)}
     </table>
     <p style="margin:24px 0 0;font-size:13px;line-height:1.7;color:#FFD98E;">
-      ⏰ ${escapeHtml(ARRIVAL_NOTICE)}
+      ${escapeHtml(ARRIVAL_NOTICE)}
     </p>
     <p style="margin:8px 0 0;font-size:13px;color:#8FA0D0;">
       늦으면 입장이 제한될 수 있어요.
-    </p>
-    ${button(data.lookupUrl, '내 배정 다시 보기')}`;
+    </p>`;
 
   const text = [
     `${data.nickname}님, 신청이 완료되었어요.`,
+    '아래 정보를 대기실 리셉션에서 보여주시면 됩니다.',
     '',
     `그룹: ${data.groupCode}`,
     `회차: ${data.roundNo}회차`,
@@ -115,8 +105,6 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
     '',
     ARRIVAL_NOTICE,
     '늦으면 입장이 제한될 수 있어요.',
-    '',
-    `내 배정 다시 보기: ${data.lookupUrl}`,
   ].join('\n');
 
   return {

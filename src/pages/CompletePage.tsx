@@ -41,9 +41,6 @@ export const CompletePage = () => {
             <br />
             메일이 보이지 않으면 스팸함을 확인해 주세요.
           </p>
-          <Button variant="ghost" fullWidth onClick={() => navigate('/lookup')}>
-            내 배정 다시 확인하기
-          </Button>
           <Button variant="subtle" fullWidth onClick={() => navigate('/')}>
             처음으로
           </Button>
