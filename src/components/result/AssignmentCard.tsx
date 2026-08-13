@@ -1,3 +1,4 @@
+import { ARRIVAL_NOTICE, VENUE } from '@shared/constants';
 import type { AssignmentResultDto } from '@shared/types';
 
 const InfoRow = ({
@@ -15,7 +16,7 @@ const InfoRow = ({
       className={
         emphasis
           ? 'font-mono text-[19px] font-bold tracking-[0.06em] text-moonlight'
-          : 'text-[15.5px] font-semibold text-slate-50'
+          : 'text-right text-[15.5px] font-semibold text-slate-50'
       }
     >
       {value}
@@ -46,13 +47,18 @@ export const AssignmentCard = ({ result }: { result: AssignmentResultDto }) => (
       <InfoRow label="그룹" value={result.groupCode} />
       <InfoRow label="회차" value={`${result.roundNo}회차`} />
       <InfoRow label="시간" value={result.timeLabel} />
+      <InfoRow label="장소" value={VENUE} />
       <InfoRow label="참가번호" value={result.participantCode} emphasis />
     </div>
 
+    <p className="border-t border-white/[0.07] bg-moonlight/[0.06] px-6 py-4 text-center text-[13px] font-medium leading-relaxed text-moonlight-soft">
+      ⏰ {ARRIVAL_NOTICE}
+    </p>
+
     <p className="border-t border-white/[0.07] px-6 py-4 text-center text-[12.5px] leading-relaxed text-slate-500">
-      시간 맞춰 입장해 주세요.
-      <br />
       참가번호로 자리를 안내드립니다.
+      <br />
+      늦으면 입장이 제한될 수 있어요.
     </p>
   </div>
 );

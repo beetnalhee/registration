@@ -1,3 +1,4 @@
+import { ARRIVAL_NOTICE, VENUE } from '../../shared/constants.js';
 import type { MailMessage } from './mailer.js';
 
 export interface AssignmentMailData {
@@ -92,10 +93,14 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
       ${infoRow('그룹', data.groupCode)}
       ${infoRow('회차', `${data.roundNo}회차`)}
       ${infoRow('시간', data.timeLabel)}
+      ${infoRow('장소', VENUE)}
       ${infoRow('참가번호', data.participantCode, true)}
     </table>
-    <p style="margin:24px 0 0;font-size:13px;color:#8FA0D0;">
-      시간 맞춰 입장해주세요, 늦으면 입장이 제한될 수 있어요.<br />
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.7;color:#FFD98E;">
+      ⏰ ${escapeHtml(ARRIVAL_NOTICE)}
+    </p>
+    <p style="margin:8px 0 0;font-size:13px;color:#8FA0D0;">
+      늦으면 입장이 제한될 수 있어요.
     </p>
     ${button(data.lookupUrl, '내 배정 다시 보기')}`;
 
@@ -105,7 +110,11 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
     `그룹: ${data.groupCode}`,
     `회차: ${data.roundNo}회차`,
     `시간: ${data.timeLabel}`,
+    `장소: ${VENUE}`,
     `참가번호: ${data.participantCode}`,
+    '',
+    ARRIVAL_NOTICE,
+    '늦으면 입장이 제한될 수 있어요.',
     '',
     `내 배정 다시 보기: ${data.lookupUrl}`,
   ].join('\n');

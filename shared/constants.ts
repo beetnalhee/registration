@@ -45,3 +45,15 @@ export const PARTICIPANT_STATUS_LABELS: Record<(typeof PARTICIPANT_STATUSES)[num
 
 /** 참가번호 자리수: SUMMER-2-F-013 의 '013' 부분 */
 export const SEQUENCE_PAD_LENGTH = 3;
+
+/**
+ * 모이는 장소. 배정이 확정된 뒤에만 안내한다(결과 카드·안내 메일).
+ * 신청 전 화면에는 노출하지 않는다.
+ */
+export const VENUE = "본관 5층 '국' 세미나실";
+
+/** 활동 설명이 있어 회차 시작보다 먼저 도착해야 하는 시간(분). */
+export const ARRIVAL_LEAD_MINUTES = 10;
+
+export const ARRIVAL_NOTICE =
+  `활동 설명이 있으니 본인 회차 시작 ${ARRIVAL_LEAD_MINUTES}분 전까지 도착해 주세요.`;
