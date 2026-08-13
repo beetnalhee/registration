@@ -25,7 +25,7 @@ export const toAssignmentResultDto = (
   }
 
   return {
-    nickname: participant.nickname,
+    name: participant.name,
     groupCode: participant.assignedGroupCode,
     roundNo: participant.assignedRoundNo,
     timeLabel: extra.timeLabel,
@@ -36,10 +36,7 @@ export const toAssignmentResultDto = (
 export const toLookupResultDto = (
   participant: ParticipantRecord,
   extra: { timeLabel: string },
-): LookupResultDto => ({
-  ...toAssignmentResultDto(participant, extra),
-  name: participant.name,
-});
+): LookupResultDto => toAssignmentResultDto(participant, extra);
 
 /** 관리자용 — 내부 운영 정보를 포함한다. 관리자 인증을 통과한 요청에만 사용한다. */
 export const toAdminParticipantDto = (
@@ -48,7 +45,6 @@ export const toAdminParticipantDto = (
 ): AdminParticipantDto => ({
   id: participant.id,
   name: participant.name,
-  nickname: participant.nickname,
   birthdate: participant.birthdate,
   age: participant.ageAtEvent,
   gender: participant.gender,

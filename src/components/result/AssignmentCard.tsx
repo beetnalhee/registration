@@ -40,7 +40,7 @@ export const AssignmentCard = ({ result }: { result: AssignmentResultDto }) => (
       <h2 className="mt-3 font-display text-[22px] font-extrabold tracking-[-0.02em] text-moonlight-soft">
         신청이 완료되었습니다
       </h2>
-      <p className="mt-2 text-[13.5px] text-slate-400">{result.nickname}님, 여름밤에서 만나요</p>
+      <p className="mt-2 text-[13.5px] text-slate-400">{result.name}님, 여름밤에서 만나요</p>
     </div>
 
     <div className="px-6 py-2">

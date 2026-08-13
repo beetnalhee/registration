@@ -11,7 +11,7 @@ import { buildAssignmentMail } from '../../server/email/templates.js';
 
 const data = {
   eventName: '사랑은 돌아오는 거야',
-  nickname: '희주',
+  name: '희주',
   groupCode: 'SUMMER',
   roundNo: 2,
   timeLabel: '22:05 ~ 22:25',

@@ -3,7 +3,6 @@ import type { Gender } from '@shared/types';
 
 export interface ApplyFormState {
   name: string;
-  nickname: string;
   birthdate: string;
   gender: Gender | null;
   phone: string;
@@ -14,7 +13,6 @@ export interface ApplyFormState {
 
 export const EMPTY_FORM: ApplyFormState = {
   name: '',
-  nickname: '',
   birthdate: '',
   gender: null,
   phone: '',
@@ -42,7 +40,6 @@ const identitySchema = applicationSchema.pick({
 /** 배정 결과를 전달하는 데 필요한 값. 회차를 고른 뒤에 받는다. */
 const contactSchema = applicationSchema.pick({
   name: true,
-  nickname: true,
   phone: true,
   email: true,
 });
@@ -71,7 +68,7 @@ export const validateIdentity = (form: ApplyFormState): FieldErrors => {
   return result.success ? {} : toFieldErrors(result.error.issues);
 };
 
-/** 3단계 검증 — 이름·닉네임·연락처·이메일. */
+/** 3단계 검증 — 이름·연락처·이메일. */
 export const validateContact = (form: ApplyFormState): FieldErrors => {
   const result = contactSchema.safeParse(form);
   return result.success ? {} : toFieldErrors(result.error.issues);

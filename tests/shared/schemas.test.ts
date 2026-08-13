@@ -8,7 +8,6 @@ import {
 
 const validApplication = {
   name: '김희주',
-  nickname: '희주',
   birthdate: '2000-05-14',
   gender: 'F',
   phone: '010-1234-8241',

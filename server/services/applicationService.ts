@@ -122,7 +122,6 @@ export const submitApplication = async (input: ApplicationInput): Promise<Assign
 
     const participant = await insertParticipant(client, {
       name: input.name,
-      nickname: input.nickname,
       birthdate: input.birthdate,
       gender: input.gender,
       phone: input.phone,

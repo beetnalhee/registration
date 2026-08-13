@@ -56,7 +56,8 @@ export interface RoundAvailabilityDto {
  * 자리가 없으면 신청 자체가 거절되므로 null 인 필드가 없다.
  */
 export interface AssignmentResultDto {
-  nickname: string;
+  /** 실명. 신청한 본인에게만 내려간다. */
+  name: string;
   groupCode: GroupCode;
   roundNo: number;
   timeLabel: string;
@@ -64,16 +65,14 @@ export interface AssignmentResultDto {
 }
 
 export interface SelfCancelResultDto {
-  nickname: string;
-}
-
-export interface LookupResultDto extends AssignmentResultDto {
-  /**
-   * 실명. 이메일 + 전화번호 뒤 4자리를 맞춘 본인에게만 내려간다.
-   * (마스킹하면 오히려 본인 확인이 어려워진다는 판단)
-   */
   name: string;
 }
+
+/**
+ * 조회 결과. 이메일 + 전화번호 뒤 4자리를 맞춘 본인에게만 내려간다.
+ * 배정 직후 결과와 같은 내용이므로 형태도 같다.
+ */
+export type LookupResultDto = AssignmentResultDto;
 
 // ─── 관리자용 ──────────────────────────────────────────────────────────────
 
@@ -125,7 +124,6 @@ export interface AdminOverviewDto {
 export interface AdminParticipantDto {
   id: string;
   name: string;
-  nickname: string;
   birthdate: string;
   age: number;
   gender: Gender;

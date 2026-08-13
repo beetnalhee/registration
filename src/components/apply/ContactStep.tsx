@@ -16,25 +16,15 @@ interface ContactStepProps {
  */
 export const ContactStep = ({ form, errors, onChange }: ContactStepProps) => (
   <div className="space-y-5">
-    <div className="grid grid-cols-2 gap-3">
-      <TextField
-        label="이름"
-        name="name"
-        autoComplete="name"
-        placeholder="이름"
-        value={form.name}
-        onChange={(event) => onChange('name', event.target.value)}
-        {...(errors.name ? { error: errors.name } : {})}
-      />
-      <TextField
-        label="닉네임"
-        name="nickname"
-        placeholder="닉네임"
-        value={form.nickname}
-        onChange={(event) => onChange('nickname', event.target.value)}
-        {...(errors.nickname ? { error: errors.nickname } : {})}
-      />
-    </div>
+    <TextField
+      label="이름"
+      name="name"
+      autoComplete="name"
+      placeholder="이름"
+      value={form.name}
+      onChange={(event) => onChange('name', event.target.value)}
+      {...(errors.name ? { error: errors.name } : { hint: '리셉션에서 확인하는 이름이에요.' })}
+    />
 
     {/* 하이픈은 입력하는 대로 자동으로 붙는다. 서버는 숫자만 남겨 저장한다. */}
     <TextField

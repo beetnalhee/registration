@@ -51,7 +51,6 @@ const ParticipantRow = ({
           <span className="truncate text-[14.5px] font-semibold text-slate-100">
             {participant.name}
           </span>
-          <span className="truncate text-[13px] text-slate-500">{participant.nickname}</span>
         </span>
         <span className="mt-1 block text-[12.5px] text-slate-400">
           {GENDER_LABELS[participant.gender]} · 만 {participant.age}세
@@ -112,7 +111,7 @@ export const AdminParticipantsPage = () => {
           <div>
             <h1 className="text-[24px] font-bold tracking-[-0.015em] text-slate-50">참가자 관리</h1>
             <p className="mt-1 text-[13px] text-slate-400">
-              총 {list.data?.total ?? 0}명 · 이름 · 닉네임 · 이메일 · 연락처 · 참가번호로 검색
+              총 {list.data?.total ?? 0}명 · 이름 · 이메일 · 연락처 · 참가번호로 검색
             </p>
           </div>
           <Button
@@ -138,7 +137,7 @@ export const AdminParticipantsPage = () => {
               onChange={(changeEvent) =>
                 setFilters((previous) => ({ ...previous, q: changeEvent.target.value }))
               }
-              placeholder="이름, 닉네임, 이메일, 연락처, 참가번호"
+              placeholder="이름, 이메일, 연락처, 참가번호"
               className="input-base py-2.5 text-[14px]"
               aria-label="참가자 검색"
             />

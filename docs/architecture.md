@@ -140,7 +140,7 @@ rounds
          CHECK (active_count <= capacity)   ← 정원 초과 구조적 차단
 
 participants
-  신청 정보 : name, nickname, birthdate, gender, phone, email
+  신청 정보 : name, birthdate, gender, phone, email
   정규화    : phone_digits, phone_last4 (생성 컬럼)
   내부 정보 : age_at_event, default_group_code, is_bridge_zone   ← 비노출
   선택      : preferred_round_no  (선착순이므로 대체 순위 없음)
@@ -235,10 +235,11 @@ notifyParticipant()   ← 트랜잭션 밖에서 호출 (메일 지연이 락을
 ```
 /                랜딩 — 히어로, 회차 상태(3상태만), 진행 안내
 /apply           신청
-  step 1         이름·닉네임·생년월일·성별·연락처·이메일
+  step 1         생년월일·성별 — 회차 상태 계산에 필요한 값만 먼저 받는다
   step 2         회차 1개 선택 (선착순, 마감 회차는 선택 불가)
-  step 3         입력 확인 → 제출
-/apply/complete  배정 결과 (그룹·회차·시간·참가번호) — sessionStorage 로 전달
+  step 3         이름·연락처·이메일
+  step 4         입력 확인 → 제출
+/apply/complete  배정 결과 (그룹·회차·시간·장소·참가번호) — sessionStorage 로 전달
 /lookup          이메일 + 전화 뒤 4자리 → 본인 배정 조회 및 신청 취소
 /admin/login     운영진 로그인
 /admin           현황판 (15초 자동 갱신) + 행사 설정

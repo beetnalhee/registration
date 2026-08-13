@@ -35,7 +35,7 @@ export const LookupPage = () => {
 
   const [confirmingCancel, setConfirmingCancel] = useState(false);
   const [cancelling, setCancelling] = useState(false);
-  const [cancelledNickname, setCancelledNickname] = useState<string | null>(null);
+  const [cancelledName, setCancelledName] = useState<string | null>(null);
 
   const reset = () => {
     setResult(null);
@@ -84,8 +84,8 @@ export const LookupPage = () => {
     setError(null);
 
     try {
-      const { nickname } = await cancelOwnApplication(parsed.data);
-      setCancelledNickname(nickname);
+      const { name } = await cancelOwnApplication(parsed.data);
+      setCancelledName(name);
       setResult(null);
       setConfirmingCancel(false);
     } catch (caught) {
@@ -96,7 +96,7 @@ export const LookupPage = () => {
   };
 
   // ── 취소 완료 화면 ────────────────────────────────────────────────
-  if (cancelledNickname !== null) {
+  if (cancelledName !== null) {
     return (
       <PageShell>
         <div className="glass animate-fade-up px-6 py-8 text-center">
@@ -107,7 +107,7 @@ export const LookupPage = () => {
             신청이 취소되었습니다
           </h1>
           <p className="mt-3 text-[14.5px] leading-relaxed text-slate-400">
-            {cancelledNickname}님의 자리가 반납되었어요.
+            {cancelledName}님의 자리가 반납되었어요.
             <br />
             다시 참여하고 싶으시면 새로 신청해 주세요.
           </p>

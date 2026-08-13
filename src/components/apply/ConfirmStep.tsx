@@ -29,7 +29,6 @@ export const ConfirmStep = ({
     <div>
       <div className="glass px-5 py-2">
         <Row label="이름" value={form.name} />
-        <Row label="닉네임" value={form.nickname} />
         <Row label="생년월일" value={form.birthdate} />
         <Row label="성별" value={form.gender ? GENDER_LABELS[form.gender] : '-'} />
         <Row label="연락처" value={formatPhone(normalizePhone(form.phone))} />

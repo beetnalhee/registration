@@ -70,7 +70,6 @@ describe.skipIf(!TEST_DATABASE_URL)('관리자 조작', () => {
     const index = overrides.index ?? 1;
     return services.submitApplication({
       name: `참가자${index}`,
-      nickname: `닉${index}`,
       // 만 22세 = SUMMER 고정. 경계 연령(24~27)을 쓰면 기본 그룹이 차도
       // 반대 그룹으로 넘어가 정원 테스트가 모호해진다.
       birthdate: overrides.birthdate ?? '2004-05-14',

@@ -30,7 +30,6 @@ const createFakeClient = () => {
 const participant: ParticipantRecord = {
   id: '11111111-1111-4111-8111-111111111111',
   name: '김희주',
-  nickname: '희주',
   birthdate: '2001-05-14',
   gender: 'F',
   phone: '01012348241',

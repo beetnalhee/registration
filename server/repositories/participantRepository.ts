@@ -4,7 +4,6 @@ import type { Queryable } from '../db/pool.js';
 export interface ParticipantRecord {
   id: string;
   name: string;
-  nickname: string;
   /** 'YYYY-MM-DD' */
   birthdate: string;
   gender: Gender;
@@ -37,7 +36,6 @@ export interface ParticipantRecord {
 interface ParticipantRow {
   id: string;
   name: string;
-  nickname: string;
   birthdate: string;
   gender: Gender;
   phone_digits: string;
@@ -60,7 +58,7 @@ interface ParticipantRow {
 }
 
 const SELECT_PARTICIPANT = `
-  select p.id, p.name, p.nickname,
+  select p.id, p.name,
          to_char(p.birthdate, 'YYYY-MM-DD') as birthdate,
          p.gender, p.phone_digits, p.phone_last4, p.email,
          p.age_at_event, p.default_group_code, p.is_bridge_zone,
@@ -74,7 +72,6 @@ const SELECT_PARTICIPANT = `
 const toRecord = (row: ParticipantRow): ParticipantRecord => ({
   id: row.id,
   name: row.name,
-  nickname: row.nickname,
   birthdate: row.birthdate,
   gender: row.gender,
   phone: row.phone_digits,
@@ -98,7 +95,6 @@ const toRecord = (row: ParticipantRow): ParticipantRecord => ({
 
 export interface InsertParticipantParams {
   name: string;
-  nickname: string;
   birthdate: string;
   gender: Gender;
   phone: string;
@@ -122,18 +118,17 @@ export const insertParticipant = async (
 ): Promise<ParticipantRecord> => {
   const { rows } = await client.query<{ id: string }>(
     `insert into participants
-       (name, nickname, birthdate, gender, phone, email,
+       (name, birthdate, gender, phone, email,
         age_at_event, default_group_code, is_bridge_zone,
         preferred_round_no,
         status, assigned_round_id, assigned_group_code, sequence_no, participant_code)
-     values ($1, $2, $3, $4, $5, $6,
-             $7, $8, $9,
-             $10,
-             'assigned', $11, $12, $13, $14)
+     values ($1, $2, $3, $4, $5,
+             $6, $7, $8,
+             $9,
+             'assigned', $10, $11, $12, $13)
      returning id`,
     [
       params.name,
-      params.nickname,
       params.birthdate,
       params.gender,
       params.phone,
@@ -319,7 +314,6 @@ export const searchParticipants = async (
     push(
       (i) =>
         `(p.name ilike '%' || $${i} || '%'
-          or p.nickname ilike '%' || $${i} || '%'
           or p.email ilike '%' || $${i} || '%'
           or p.phone_digits like '%' || $${i} || '%'
           or p.participant_code ilike '%' || $${i} || '%')`,

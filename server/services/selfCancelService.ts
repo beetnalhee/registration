@@ -44,11 +44,11 @@ export const cancelOwnApplication = async (
   }
 
   // ★ 반환값(AdminParticipantDto)에는 나이·기본그룹·Bridge Zone 같은 내부 정보가
-  //   들어 있으므로 참가자에게 그대로 돌려주지 않는다. 닉네임만 추려서 응답한다.
+  //   들어 있으므로 참가자에게 그대로 돌려주지 않는다. 이름만 추려서 응답한다.
   await cancelParticipant({
     adminEmail: SELF_SERVICE_ACTOR,
     participantId: participant.id,
   });
 
-  return { nickname: participant.nickname };
+  return { name: participant.name };
 };

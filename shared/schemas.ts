@@ -59,7 +59,6 @@ const phoneLast4Schema = z
 /** 신청 폼 — 참가자 입력의 유일한 진입점 */
 export const applicationSchema = z.object({
   name: trimmedString(1, 40, '이름'),
-  nickname: trimmedString(1, 20, '닉네임'),
   birthdate: birthdateSchema,
   gender: genderSchema,
   phone: phoneSchema,

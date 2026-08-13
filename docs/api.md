@@ -93,7 +93,6 @@
 ```json
 {
   "name": "김희주",
-  "nickname": "희주",
   "birthdate": "2001-05-14",
   "gender": "F",
   "phone": "010-1234-8241",
@@ -105,7 +104,6 @@
 | 필드 | 규칙 |
 |---|---|
 | `name` | 1~40자 (공백 제거) |
-| `nickname` | 1~20자 |
 | `birthdate` | `YYYY-MM-DD`, 실존하는 날짜 |
 | `gender` | `M` \| `F` |
 | `phone` | 한국 휴대폰. 하이픈·공백 허용 (서버에서 숫자만 남김) |
@@ -117,7 +115,6 @@
 ```json
 {
   "status": "assigned",
-  "nickname": "희주",
   "groupCode": "SUMMER",
   "roundNo": 2,
   "timeLabel": "22:05 ~ 22:25",
@@ -131,7 +128,6 @@
 ```json
 {
   "status": "waitlisted",
-  "nickname": "희주",
   "groupCode": null,
   "roundNo": null,
   "timeLabel": null,
@@ -154,7 +150,6 @@
 ```json
 {
   "name": "김희주",
-  "nickname": "희주",
   "groupCode": "SUMMER",
   "roundNo": 2,
   "timeLabel": "22:05 ~ 22:25",
@@ -173,13 +168,13 @@
 ```
 
 ```json
-{ "nickname": "희주" }
+{ "name": "김희주" }
 ```
 
 - 접수 중(`is_open = true`)일 때만 동작한다. 마감 후에는 `409 EVENT_CLOSED` 로 운영진 문의를 안내한다
 - 좌석이 즉시 반납되고 취소 안내 메일이 발송된다
 - **되돌릴 수 없다.** 다시 참여하려면 새로 신청해야 하고, 그때 자리가 없으면 대기자가 된다
-- 응답에 닉네임만 담는다 (나이·기본그룹·Bridge Zone 등 내부 정보 비노출)
+- 응답에 이름만 담는다 (나이·기본그룹·Bridge Zone 등 내부 정보 비노출)
 
 > 자격증명이 조회와 동일하므로, 남의 이메일과 번호 뒤 4자리를 아는 사람은
 > 그 사람 신청을 취소할 수 있다. 요청 제한과 화면의 2단계 확인으로 완화한다.
@@ -256,7 +251,7 @@
 
 | 쿼리 | 설명 |
 |---|---|
-| `q` | 이름·닉네임·이메일·연락처·참가번호 부분 검색 |
+| `q` | 이름·이메일·연락처·참가번호 부분 검색 |
 | `status` | `assigned` \| `waitlisted` \| `cancelled` |
 | `roundNo` | 회차 번호 |
 | `groupCode` | `SUMMER` \| `NIGHT` |
@@ -270,8 +265,7 @@
     {
       "id": "uuid",
       "name": "김희주",
-      "nickname": "희주",
-      "birthdate": "2001-05-14",
+          "birthdate": "2001-05-14",
       "age": 25,
       "gender": "F",
       "phone": "01012348241",

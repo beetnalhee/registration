@@ -18,7 +18,7 @@ const buildMessage = (params: NotifyParams): MailMessage | null => {
   if (kind === 'cancellation') {
     return buildCancellationMail(participant.email, {
       eventName,
-      nickname: participant.nickname,
+      name: participant.name,
     });
   }
 
@@ -34,7 +34,7 @@ const buildMessage = (params: NotifyParams): MailMessage | null => {
 
   return buildAssignmentMail(participant.email, {
     eventName,
-    nickname: participant.nickname,
+    name: participant.name,
     groupCode: participant.assignedGroupCode,
     roundNo: participant.assignedRoundNo,
     timeLabel: params.timeLabel,

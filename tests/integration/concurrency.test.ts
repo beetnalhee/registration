@@ -60,7 +60,6 @@ describe.skipIf(!TEST_DATABASE_URL)('동시 신청 처리', () => {
    */
   const applicant = (index: number, gender: 'M' | 'F', roundNo = 1, age = 22) => ({
     name: `참가자${index}`,
-    nickname: `닉${index}`,
     birthdate: `${2026 - age}-01-01`,
     gender,
     phone: `010${String(10_000_000 + index).padStart(8, '0')}`,

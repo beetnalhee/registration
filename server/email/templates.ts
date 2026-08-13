@@ -3,7 +3,7 @@ import type { MailMessage } from './mailer.js';
 
 export interface AssignmentMailData {
   eventName: string;
-  nickname: string;
+  name: string;
   groupCode: string;
   roundNo: number;
   timeLabel: string;
@@ -12,7 +12,7 @@ export interface AssignmentMailData {
 
 export interface CancellationMailData {
   eventName: string;
-  nickname: string;
+  name: string;
 }
 
 const escapeHtml = (value: string): string =>
@@ -74,8 +74,8 @@ const infoRow = (label: string, value: string, emphasis = false): string => `
 export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailMessage => {
   const body = `
     <p style="margin:0 0 20px;">
-      <strong style="color:#FFEFC7;">${escapeHtml(data.nickname)}</strong>님, 신청이 완료되었어요.<br />
-      아래 정보를 대기실 리셉션에서 보여주시면 됩니다.
+      <strong style="color:#FFEFC7;">${escapeHtml(data.name)}</strong>님, 신청이 완료되었어요.<br />
+      아래 정보를 대기실 리셉션에 제시해주세요.
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,217,142,0.18);
@@ -94,8 +94,8 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
     </p>`;
 
   const text = [
-    `${data.nickname}님, 신청이 완료되었어요.`,
-    '아래 정보를 대기실 리셉션에서 보여주시면 됩니다.',
+    `${data.name}님, 신청이 완료되었어요.`,
+    '아래 정보를 대기실 리셉션에 제시해주세요.',
     '',
     `그룹: ${data.groupCode}`,
     `회차: ${data.roundNo}회차`,
@@ -122,7 +122,7 @@ export const buildAssignmentMail = (to: string, data: AssignmentMailData): MailM
 export const buildCancellationMail = (to: string, data: CancellationMailData): MailMessage => {
   const body = `
     <p style="margin:0;">
-      <strong style="color:#FFEFC7;">${escapeHtml(data.nickname)}</strong>님의 신청이 취소되었습니다.<br />
+      <strong style="color:#FFEFC7;">${escapeHtml(data.name)}</strong>님의 신청이 취소되었습니다.<br />
       다시 신청하고 싶으시면 신청 페이지에서 새로 접수해 주세요.
     </p>`;
 
@@ -130,6 +130,6 @@ export const buildCancellationMail = (to: string, data: CancellationMailData): M
     to,
     subject: `[${data.eventName}] 신청이 취소되었습니다`,
     html: layout({ title: '신청이 취소되었습니다', preheader: '신청 취소 안내', body }),
-    text: `${data.nickname}님의 신청이 취소되었습니다.`,
+    text: `${data.name}님의 신청이 취소되었습니다.`,
   };
 };

@@ -65,9 +65,8 @@ const AttendanceRow = ({
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-2">
           <span className="truncate text-[16px] font-bold text-slate-50">
-            {participant.nickname}
+            {participant.name}
           </span>
-          <span className="truncate text-[13px] text-slate-500">{participant.name}</span>
         </p>
         <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[13px] text-slate-400">
           <span className="font-mono text-moonlight">{participant.participantCode ?? '-'}</span>
@@ -170,7 +169,7 @@ export const ReceptionPage = () => {
         <header className="mb-5">
           <h1 className="text-[24px] font-bold tracking-[-0.015em] text-slate-50">리셉션 · 출석 체크</h1>
           <p className="mt-1 text-[13px] text-slate-400">
-            닉네임 · 참가번호 · 이름 · 연락처 아무거나 입력하세요
+            이름 · 참가번호 · 연락처 아무거나 입력하세요
           </p>
         </header>
 
@@ -201,7 +200,7 @@ export const ReceptionPage = () => {
             type="search"
             value={keyword}
             onChange={(event) => setKeyword(event.target.value)}
-            placeholder="닉네임, 참가번호, 이름, 연락처"
+            placeholder="이름, 참가번호, 연락처"
             autoComplete="off"
             className="input-base text-[17px]"
             aria-label="참가자 검색"

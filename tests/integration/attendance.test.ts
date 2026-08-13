@@ -63,7 +63,6 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
   const apply = (index: number, overrides: { roundNo?: number } = {}) =>
     services.submitApplication({
       name: `참가자${index}`,
-      nickname: `닉${index}`,
       birthdate: '2004-05-14',
       gender: 'F',
       phone: `010${String(30_000_000 + index).padStart(8, '0')}`,
@@ -210,8 +209,8 @@ describe.skipIf(!TEST_DATABASE_URL)('출석 체크', () => {
       pageSize: 50,
     });
 
-    expect(pending.items.map((item) => item.nickname)).toEqual(['닉2']);
-    expect(arrived.items.map((item) => item.nickname)).toEqual(['닉1']);
+    expect(pending.items.map((item) => item.name)).toEqual(['참가자2']);
+    expect(arrived.items.map((item) => item.name)).toEqual(['참가자1']);
   });
 
   it('CSV 에 출석 여부가 포함된다', async () => {

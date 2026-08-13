@@ -58,7 +58,6 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
   const apply = (index: number, roundNo = 1) =>
     services.submitApplication({
       name: `참가자${index}`,
-      nickname: `닉${index}`,
       birthdate: '2004-05-14',
       gender: 'F',
       phone: `010${String(40_000_000 + index).padStart(8, '0')}`,
@@ -86,7 +85,7 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
 
     const result = await services.selfCancel.cancelOwnApplication(credentials(1));
 
-    expect(result).toEqual({ nickname: '닉1' });
+    expect(result).toEqual({ name: '참가자1' });
 
     const { rows } = await pool.query<{ status: string }>(
       'select status from participants where email = $1',
@@ -110,7 +109,7 @@ describe.skipIf(!TEST_DATABASE_URL)('본인 취소', () => {
     const result = await services.selfCancel.cancelOwnApplication(credentials(1));
 
     // 관리자용 DTO 를 그대로 돌려주면 나이·기본그룹·Bridge Zone 이 새어나간다.
-    expect(Object.keys(result)).toEqual(['nickname']);
+    expect(Object.keys(result)).toEqual(['name']);
     expect(JSON.stringify(result).toLowerCase()).not.toContain('bridge');
   });
 

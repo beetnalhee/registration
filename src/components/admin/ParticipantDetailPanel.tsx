@@ -68,7 +68,7 @@ export const ParticipantDetailPanel = ({
         <header className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-[17px] font-bold text-slate-50">
-              {participant ? `${participant.name} (${participant.nickname})` : '참가자'}
+              {participant ? participant.name : '참가자'}
             </h2>
             {participant && (
               <p className="mt-1 flex flex-wrap items-center gap-2 text-[12.5px] text-slate-400">
